@@ -1,7 +1,9 @@
 import random
 class Maze_Generator:
+    def __init__(self):
+        pass
     
-    def generate_maze(width, height):
+    def generate_maze(self, width, height):
         # Initialize the maze grid, 0 for wall, 1 for path
         maze = [[0 for x in range(width)] for y in range(height)]
 
@@ -48,16 +50,48 @@ class Maze_Generator:
 
         return maze
 
-    def print_maze(maze):
+    def print_maze(self,maze):
         for row in maze:
             # if the cell is 0, print 'X', if it is 1, print '.', otherwise print the character
             print(''.join(['X' if cell == 0 else '.' if cell == 1 else cell for cell in row]))
 
-    def write_maze_to_file(maze, filename):
+    def write_maze_to_file(self, maze, filename):
         with open(filename, 'w') as file:
             for row in maze:
                 file.write(''.join(['X' if cell == 0 else '.' if cell == 1 else cell for cell in row])+ '\n')
 
+    def remove_random_walls(self):
+        
+        width = random.randint(10, 50)
+        height = random.randint(10, 30)
+        maze = self.generate_maze(width, height)
+        
+        height = len(maze)
+        width = len(maze[0])
+        removable_walls = []
 
+        for y in range(1, height - 1):
+            for x in range(1, width - 1):
+                # Ensure the cell value is an integer before comparison
+                cell_value = int(maze[y][x]) if str(maze[y][x]).isdigit() else 0 if maze[y][x] == 'X' else 1
+                if cell_value == 0:  # It's a wall
+                    # Convert adjacent cells to integers, handling both 'X'/'.' and 0/1 representations
+                    up_cell = int(maze[y-1][x]) if str(maze[y-1][x]).isdigit() else 0 if maze[y-1][x] == 'X' else 1
+                    down_cell = int(maze[y+1][x]) if str(maze[y+1][x]).isdigit() else 0 if maze[y+1][x] == 'X' else 1
+                    left_cell = int(maze[y][x-1]) if str(maze[y][x-1]).isdigit() else 0 if maze[y][x-1] == 'X' else 1
+                    right_cell = int(maze[y][x+1]) if str(maze[y][x+1]).isdigit() else 0 if maze[y][x+1] == 'X' else 1
+        
+                    # Check if removing the wall does not create a direct path between two corridors
+                    if (up_cell + down_cell == 2) or (left_cell + right_cell == 2):
+                        removable_walls.append((x, y))
 
+        walls_to_remove = random.sample(removable_walls, min(10, len(removable_walls)))
+
+        for x, y in walls_to_remove:
+            maze[y][x] = 1  # Remove the wall
+
+        return maze
+    # After gene
+    
+    # rating the maze and before returning it, call remove_random_walls
 

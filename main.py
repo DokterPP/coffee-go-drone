@@ -6,6 +6,7 @@ import random
 from Algorithms import left_hand
 from tkinter import messagebox
 from tkinter import Canvas, Button
+import turtle
 import time
 
 def read_file_from_argument():
@@ -95,6 +96,7 @@ def draw_maze(maze, canvas):
     
 def solve_maze(maze, canvas):
     solved_maze = left_hand.solve_maze(maze)
+    canvas.delete("all")
     draw_maze(solved_maze, canvas)
 
 def string_to_maze(maze_str):
@@ -105,22 +107,23 @@ def main():
     root = tk.Tk()
     root.title("Maze Solver Visualization")
 
-    canvas = Canvas(root, width=1000, height=1000)
+    canvas = Canvas(root, width=2000, height=700)
     canvas.pack(fill=tk.X)
 
     # Generate and display the initial maze
     width = random.randint(10, 50)
     height = random.randint(10, 30)
-    maze_rand = Maze_Generator.generate_maze(width, height)
-    Maze_Generator.write_maze_to_file(maze_rand, 'maze.txt')
+    maze_rand = Maze_Generator().remove_random_walls()
+    Maze_Generator().write_maze_to_file(maze_rand, 'maze.txt')
     maze_str = read_file_from_argument()
     draw_maze(maze_str, canvas)
     print("Initial maze:")
     print(maze_str)
     # Button to start solving
     maze = string_to_maze(maze_str)
-    solve_maze(maze, canvas)
-
+    solve_button = tk.Button(root, text="Solve Maze",command=lambda: solve_maze(maze, canvas))
+    solve_button.pack(side=tk.TOP, padx=10, pady=10)
+    
     root.mainloop()
         
         
