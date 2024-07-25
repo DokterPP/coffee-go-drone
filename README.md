@@ -11,6 +11,14 @@ e The end location to deliver the coffee
 get up to 50 X 50 dimensions for city map
 
 drone is red triangle
+- Maybe we can try other algorithm. I suggest A star 
+- LEcturer say control panel UI built on tkinter can be regarded as extra feature
+
+- press f for shortest path instead of pressing a tkinter button
+- g for autopiloting drone. (drone moves along shortest pre defined path)
+- During auto-piloting, press p to pause and and press p again to resume movement
+- Once drone is done flying output a message. In this format: Automatic Pilot: Destination(1,10) reached in ... steps. Press 'c' to continue.
+- Press 'c' drone path will be cleared and drone can be controlled manually.
 
 
 ## Flow
