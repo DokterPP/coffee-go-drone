@@ -1,4 +1,5 @@
 from generate_maze import Maze_Generator
+
 def solve_maze(maze):
     print(type(maze))
     dx = [0, 1, 0, -1]
@@ -29,7 +30,8 @@ def solve_maze(maze):
             break
         
         moved = False
-        for _ in range(4):  # Try all directions
+        direction = turn_left(direction)  # Always try to turn left first
+        for _ in range(4):  # Try all directions in priority order
             if is_path(x, y, direction):
                 maze[y][x] = '-'  # Mark the current path
                 x += dx[direction]
@@ -45,10 +47,9 @@ def solve_maze(maze):
             path_stack.pop()  # Pop the current position off the stack
             if path_stack:  # Ensure the stack is not empty before resetting direction
                 x, y = path_stack[-1]  # Reset to the previous position
-                # Reset direction based on backtrack position, or keep it unchanged
-                # This step depends on how you want to handle direction after backtracking
-                
-        # After completing the pathfinding, mark the start position with 's'
+                direction = turn_right(turn_right(direction))  # Reset to the direction before last turn
+    
+    # Mark the start position with 's'
     sx, sy = start_position
     maze[sy][sx] = 's'
     

@@ -1,27 +1,29 @@
 import turtle
 
-
-class tile():
+class Tile:
+    def __init__(self, turtle_instance):
+        self.turtle = turtle_instance
 
     def draw_tile(self, x, y, color, size, text=None, special_color=None):
-        turtle.goto(x, y)
-        turtle.pendown()
-        turtle.fillcolor(color)
-        turtle.begin_fill()
+        self.turtle.penup()
+        self.turtle.goto(x, y)
+        self.turtle.pendown()
+        self.turtle.fillcolor(color)
+        self.turtle.begin_fill()
         for _ in range(4):
-            turtle.forward(size)
-            turtle.right(90)
-        turtle.end_fill()
-        turtle.penup()
+            self.turtle.forward(size)
+            self.turtle.right(90)
+        self.turtle.end_fill()
+        self.turtle.penup()
 
         if text:
-            turtle.goto(x + size /1.9 , y - size+3)
-            turtle.write(text, align="center", font=("Arial", 10, "bold"))
-            turtle.goto(x + size / 2, y - size+2)
-            turtle.pendown()
-            turtle.pencolor(special_color)
-            turtle.pen(pensize=3)
-            turtle.circle(size / 2.5)
-            turtle.pencolor('black')
-            turtle.pen(pensize=1)
-            turtle.penup()
+            self.turtle.goto(x + size / 1.9, y - size + 3)
+            self.turtle.write(text, align="center", font=("Arial", 10, "bold"))
+            self.turtle.goto(x + size / 2, y - size + 2)
+            self.turtle.pendown()
+            self.turtle.pencolor(special_color)
+            self.turtle.pen(pensize=3)
+            self.turtle.circle(size / 2.5)
+            self.turtle.pencolor('black')
+            self.turtle.pen(pensize=1)
+            self.turtle.penup()
