@@ -1,7 +1,6 @@
 from generate_maze import Maze_Generator
 
 def solve_maze(maze):
-    print(type(maze))
     dx = [0, 1, 0, -1]
     dy = [-1, 0, 1, 0]
     direction = 0  # Start direction facing up
@@ -10,6 +9,10 @@ def solve_maze(maze):
     start_position = (x, y)
     
     path_stack = [(x, y)]  # Initialize stack with the start position
+    
+    # List to store numbered path nodes and their coordinates
+    numbered_path_nodes = []
+    node_count = 0
     
     def turn_left(direction):
         return (direction - 1) % 4
@@ -27,6 +30,7 @@ def solve_maze(maze):
         x, y = path_stack[-1]  # Get the current position from the top of the stack
         
         if maze[y][x] == 'e':  # Check if the end has been reached
+            numbered_path_nodes.append((node_count, (x, y)))
             break
         
         moved = False
@@ -34,6 +38,8 @@ def solve_maze(maze):
         for _ in range(4):  # Try all directions in priority order
             if is_path(x, y, direction):
                 maze[y][x] = '-'  # Mark the current path
+                node_count += 1
+                numbered_path_nodes.append((node_count, (x, y)))
                 x += dx[direction]
                 y += dy[direction]
                 path_stack.append((x, y))  # Push the new position onto the stack
@@ -57,5 +63,7 @@ def solve_maze(maze):
     for row in maze:
         print(''.join(row))
     
-    return maze
-
+    print("Numbered path nodes:")
+    for node in numbered_path_nodes:
+        print(node)
+    return maze, numbered_path_nodes

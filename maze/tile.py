@@ -27,3 +27,13 @@ class Tile:
             self.turtle.pencolor('black')
             self.turtle.pen(pensize=1)
             self.turtle.penup()
+    def draw_circle(self, x, y, color, radius):
+        self.turtle.penup()
+        self.turtle.goto(x, y-radius)
+        self.turtle.pendown()
+        self.turtle.fillcolor(color)
+        self.turtle.begin_fill()
+        self.turtle.pen(pensize=2)
+        self.turtle.circle(radius)
+        self.turtle.pen(pensize=1)
+        self.turtle.end_fill()
