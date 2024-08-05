@@ -56,7 +56,7 @@ def draw_maze(maze, t, tile_drawer):
     return start_position
 
 def generate_new_maze(t, tile_drawer):
-    global initial_start_position
+    global initial_start_position, solved_path_coordinates
     
     generate_button.config(state=tk.DISABLED)  # Disable the button
     disable_key_controls()  # Disable key controls
@@ -69,6 +69,7 @@ def generate_new_maze(t, tile_drawer):
     Maze_Generator().write_maze_to_file(maze_rand, MAZE_FILE)
     maze_str = read_file_from_argument()
     initial_start_position = draw_maze(maze_str, t, tile_drawer)  # Save the new starting position
+    solved_path_coordinates = []  # Clear any previous path
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
     screen.update()
     
@@ -89,6 +90,7 @@ def enable_key_controls():
 
 def solve_maze(t, tile_drawer):
     global initial_start_position, solved_path_coordinates
+    
     # Move the turtle back to the initial starting position before solving the maze
     if initial_start_position:
         Move_Turtle().move_turtle_to_start(t, initial_start_position)
@@ -106,18 +108,8 @@ def solve_maze(t, tile_drawer):
         solved_maze = astar.solve_maze_astar(maze)
     # Convert the solved maze list back to a string
     solved_maze_str = '\n'.join([''.join(row) for row in solved_maze])
-
+    solved_path_coordinates = solved_path
     initial_start_position = draw_maze(solved_maze_str, t, tile_drawer)  # Save the new starting position
-
-    # Store the coordinates of the path nodes
-    solved_path_coordinates.clear()
-    start_x, start_y = initial_start_position
-
-    for _, (x, y) in solved_path:
-        screen_x = start_x + x * TILE_SIZE
-        screen_y = start_y - y * TILE_SIZE
-        solved_path_coordinates.append((screen_x, screen_y))
-    
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
     screen.update()
 
@@ -126,31 +118,37 @@ def string_to_maze(maze_str):
 
 def follow_path(t):
     global solved_path_coordinates
-    start_position = initial_start_position
-    t.penup()  # Ensure turtle does not draw lines
-    t.goto(start_position[0], start_position[1])
-    t.pendown()  # Start drawing if needed
-
+    if not solved_path_coordinates:
+            print("No path to follow.")
+            return
+    print("Path coordinates:", solved_path_coordinates)
     # Follow the path step by step in sequence
+    
+    t.speed(1)
     for i in range(1, len(solved_path_coordinates)):
         current_position = solved_path_coordinates[i - 1]
         next_position = solved_path_coordinates[i]
-
+        print(f"Moving from {current_position} to {next_position}")
+        t.speed(1)
         # Calculate the direction to move
         if next_position[0] > current_position[0]:
             t.setheading(0)  # Facing East (right)
+            t.forward(TILE_SIZE)
         elif next_position[0] < current_position[0]:
             t.setheading(180)  # Facing West (left)
+            t.forward(TILE_SIZE)
         elif next_position[1] > current_position[1]:
-            t.setheading(90)  # Facing North (up)
+            t.setheading(270)  # Facing North (up)
+            t.forward(TILE_SIZE)
         elif next_position[1] < current_position[1]:
-            t.setheading(270)  # Facing South (down)
+            t.setheading(90)  # Facing South (down)
+            t.forward(TILE_SIZE)
 
-        # Move to the next position
-        t.goto(next_position[0], next_position[1])
+        # # Move to the next p
+        # osition
+        # t.forward(TILE_SIZE)
         screen.update()
-
-
+    
 def main():
     global selected_algorithm
     global generate_button

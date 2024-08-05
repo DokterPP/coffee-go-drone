@@ -1,5 +1,3 @@
-from generate_maze import Maze_Generator
-
 def solve_maze(maze):
     dx = [0, 1, 0, -1]
     dy = [-1, 0, 1, 0]
@@ -12,7 +10,6 @@ def solve_maze(maze):
     
     # List to store numbered path nodes and their coordinates
     numbered_path_nodes = []
-    node_count = 0
     
     def turn_left(direction):
         return (direction - 1) % 4
@@ -30,7 +27,7 @@ def solve_maze(maze):
         x, y = path_stack[-1]  # Get the current position from the top of the stack
         
         if maze[y][x] == 'e':  # Check if the end has been reached
-            numbered_path_nodes.append((node_count, (x, y)))
+            numbered_path_nodes.append((x, y))
             break
         
         moved = False
@@ -38,8 +35,7 @@ def solve_maze(maze):
         for _ in range(4):  # Try all directions in priority order
             if is_path(x, y, direction):
                 maze[y][x] = '-'  # Mark the current path
-                node_count += 1
-                numbered_path_nodes.append((node_count, (x, y)))
+                numbered_path_nodes.append((x, y))
                 x += dx[direction]
                 y += dy[direction]
                 path_stack.append((x, y))  # Push the new position onto the stack
@@ -51,10 +47,12 @@ def solve_maze(maze):
         if not moved:  # If stuck at a dead-end, backtrack
             maze[y][x] = ','  # Optional: Mark backtracked path differently
             path_stack.pop()  # Pop the current position off the stack
+            numbered_path_nodes.pop()
             if path_stack:  # Ensure the stack is not empty before resetting direction
                 x, y = path_stack[-1]  # Reset to the previous position
                 direction = turn_right(turn_right(direction))  # Reset to the direction before last turn
-    
+                
+
     # Mark the start position with 's'
     sx, sy = start_position
     maze[sy][sx] = 's'
@@ -63,7 +61,4 @@ def solve_maze(maze):
     for row in maze:
         print(''.join(row))
     
-    print("Numbered path nodes:")
-    for node in numbered_path_nodes:
-        print(node)
     return maze, numbered_path_nodes
