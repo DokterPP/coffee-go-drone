@@ -9,6 +9,7 @@ def solve_maze_astar(maze):
     
     start = (1, len(maze) - 2)
     goal = None
+    numbered_path_nodes = []
     
     # Find goal position
     for y in range(len(maze)):
@@ -45,10 +46,18 @@ def solve_maze_astar(maze):
     # Reconstruct path
     if goal in came_from:
         current = goal
+        path_stack = []
         while current != start:
-            x, y = current
-            maze[y][x] = '-'
+            path_stack.append(current)
             current = came_from[current]
+        path_stack.append(start)
+        
+        # Add path nodes to numbered_path_nodes and update maze
+        while path_stack:
+            px, py = path_stack.pop()
+            numbered_path_nodes.append((px, py))
+            if maze[py][px] != 'e':  # Keep the end marked as 'e'
+                maze[py][px] = '-'
         
         # Mark the start and goal
         sx, sy = start
@@ -60,4 +69,4 @@ def solve_maze_astar(maze):
     for row in maze:
         print(''.join(row))
     
-    return maze
+    return maze, numbered_path_nodes

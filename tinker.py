@@ -101,11 +101,11 @@ def solve_maze(t, tile_drawer):
     if selected_algorithm.get() == "left_hand":
         solved_maze, solved_path = left_hand.solve_maze(maze)
     elif selected_algorithm.get() == "depth_first":
-        solved_maze = depth_first.solve_maze_dfs(maze)
+        solved_maze, solved_path = depth_first.solve_maze_dfs(maze)
     elif selected_algorithm.get()== "breadth_first":
-        solved_maze = breadth_first.solve_maze_bfs(maze)
+        solved_maze, solved_path  = breadth_first.solve_maze_bfs(maze)
     elif selected_algorithm.get() == "a_star":
-        solved_maze = astar.solve_maze_astar(maze)
+        solved_maze, solved_path  = astar.solve_maze_astar(maze)
     # Convert the solved maze list back to a string
     solved_maze_str = '\n'.join([''.join(row) for row in solved_maze])
     solved_path_coordinates = solved_path
@@ -144,9 +144,6 @@ def follow_path(t):
             t.setheading(90)  # Facing South (down)
             t.forward(TILE_SIZE)
 
-        # # Move to the next p
-        # osition
-        # t.forward(TILE_SIZE)
         screen.update()
     
 def main():

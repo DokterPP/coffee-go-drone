@@ -20,7 +20,7 @@ class Deque:
 def solve_maze_bfs(maze):
     dx = [0, 1, 0, -1]
     dy = [-1, 0, 1, 0]
-    
+    numbered_path_nodes = []
     x, y = 1, len(maze) - 2  # Assuming the start position is bottom left
     start_position = (x, y)
     
@@ -46,11 +46,21 @@ def solve_maze_bfs(maze):
                 parent[(nx, ny)] = (x, y)
     
     if end_found:
+        # Trace back from the end position to the start position
         x, y = end_position
+        path_stack = []
         while (x, y) != start_position:
-            if maze[y][x] != 'e':  # Keep the end marked as 'e'
-                maze[y][x] = '-'  # Mark the shortest path
+            path_stack.append((x, y))
             x, y = parent[(x, y)]
+        path_stack.append(start_position)
+        
+        # Reverse the path stack to get the path from start to end
+        while path_stack:
+            px, py = path_stack.pop()
+            numbered_path_nodes.append((px, py))
+            if maze[py][px] != 'e':  # Keep the end marked as 'e'
+                maze[py][px] = '-'  # Mark the shortest path
+        
         # Mark the start position last to keep it as 's'
         sx, sy = start_position
         maze[sy][sx] = 's'
@@ -59,4 +69,4 @@ def solve_maze_bfs(maze):
     for row in maze:
         print(''.join(row))
     
-    return maze
+    return maze, numbered_path_nodes
