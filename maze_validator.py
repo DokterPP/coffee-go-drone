@@ -4,7 +4,7 @@
 # check if maze has walls in the middle
 # check if maze start and end points are on the corners
 
-from Algorithms import astar
+from Algorithms.astar import AStar_MazeSolver
 
 
 class Validator:
@@ -43,8 +43,9 @@ class Validator:
                     break
             if start_x is not None:
                 break
-            
-        solved_maze, solved_path  = astar.solve_maze_astar(start_x, start_y, maze)
+        
+        astar = AStar_MazeSolver(start_x, start_y, maze)
+        solved_maze, solved_path  = astar.solve_maze_astar()
         if solved_path:
             return True
         else:
