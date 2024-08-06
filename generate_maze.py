@@ -1,4 +1,21 @@
 import random
+
+class Deque:
+    def __init__(self):
+        self.items = []
+    
+    def append(self, item):
+        self.items.append(item)
+    
+    def popleft(self):
+        if not self.is_empty():
+            return self.items.pop(0)
+        else:
+            return None
+    
+    def is_empty(self):
+        return len(self.items) == 0
+
 class Maze_Generator:
     def __init__(self):
         pass
@@ -61,7 +78,6 @@ class Maze_Generator:
                 file.write(''.join(['X' if cell == 0 else '.' if cell == 1 else cell for cell in row])+ '\n')
 
     def remove_random_walls(self, maze):
-        
         height = len(maze)
         width = len(maze[0])
         removable_walls = []
@@ -87,12 +103,40 @@ class Maze_Generator:
             maze[y][x] = 1  # Remove the wall
 
         return maze
-    # After gene
-    
-    # rating the maze and before returning it, call remove_random_walls
+
+    def is_solvable(self, maze):
+        """Check if there is a path from start 's' to end 'e'."""
+        height = len(maze)
+        width = len(maze[0])
+        start = (height - 2, 1)
+        end = (1, width - 2)
+        
+        # BFS to find if there is a path from start to end
+        queue = Deque()
+        queue.append(start)
+        visited = set()
+        visited.add(start)
+        
+        while not queue.is_empty():
+            x, y = queue.popleft()
+            if (x, y) == end:
+                return True
+            # Explore neighbors
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < height and 0 <= ny < width and maze[nx][ny] in {1, 'e'} and (nx, ny) not in visited:
+                    visited.add((nx, ny))
+                    queue.append((nx, ny))
+        return False
+
     def generate_maze_final(self):
         width = random.randint(10, 50)
         height = random.randint(10, 30)
         maze = self.generate_maze(width, height)
-        output = self.remove_random_walls(maze)
-        return output
+        maze = self.remove_random_walls(maze)
+        
+        # Ensure the maze is solvable
+        if not self.is_solvable(maze):
+            print("Error maze, Regenerating maze...")
+            return self.generate_maze_final()  # Regenerate if unsolvable
+        return maze

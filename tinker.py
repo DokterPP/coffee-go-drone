@@ -78,7 +78,7 @@ def draw_maze(maze, t, tile_drawer):
             elif char == '.':
                 tile_drawer.draw_tile(screen_x, screen_y, 'white', TILE_SIZE)
             elif char == ',':
-                tile_drawer.draw_tile(screen_x, screen_y, 'yellow', TILE_SIZE)
+                tile_drawer.draw_tile(screen_x, screen_y, 'IndianRed1', TILE_SIZE)
             else:
                 raise ValueError(f"Invalid character in maze: '{char}' at position ({x}, {y})")
             
@@ -90,6 +90,7 @@ def generate_new_maze(t, tile_drawer):
     global initial_start_position, solved_path_coordinates
     
     generate_button.config(state=tk.DISABLED)  # Disable the button
+    solve_button.config(state=tk.DISABLED)  # Disable the button
     disable_key_controls()  # Disable key controls
     
     # Move the turtle back to the initial starting position before generating the maze
@@ -105,6 +106,7 @@ def generate_new_maze(t, tile_drawer):
     screen.update()
     
     generate_button.config(state=tk.NORMAL)  # Re-enable the button
+    solve_button.config(state=tk.NORMAL)  # Re-enable the button
     enable_key_controls()  # Re-enable key controls
 
 def disable_key_controls():
@@ -250,6 +252,7 @@ def main():
     algorithm_frame = tk.Frame(root)
     algorithm_frame.grid(padx=2, pady=2, row=2, column=11, sticky='nsew')
     #add text to the frame make the font bold
+    
     algorithm_label = tk.Label(algorithm_frame, text="Select Algorithm", font='Helvetica 10 bold')
     algorithm_label.grid(padx=2, pady=2, row=0, column=0)
     selected_algorithm = tk.StringVar(value="left_hand")
