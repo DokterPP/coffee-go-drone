@@ -1,6 +1,7 @@
 import turtle
 import sys
 import tkinter as tk
+from tkinter import Toplevel, Entry, Button
 from maze.tile import Tile
 from generate_maze import Maze_Generator
 from movement import Move_Turtle
@@ -129,7 +130,22 @@ def wait_for_continue(event=None):
     enable_buttons()
     continue_flag = True
 
-    
+def wait_for_enter():
+    global enter_flag
+    enter_flag = False
+    disable_buttons()
+    disable_key_controls()
+    def on_enter_press(event):
+        global enter_flag
+        enter_flag = True
+    root.bind('<Return>', on_enter_press)
+    while not enter_flag:
+        screen.update()
+        screen.ontimer(lambda: None, 100)  # Wait for 100ms before checking again
+    root.unbind('<Return>')
+    enable_key_controls()
+    enable_buttons()
+        
 def toggle_path_visibility(event=None):
     global show_path
     show_path = not show_path
@@ -269,7 +285,10 @@ def generate_new_maze(t, tile_drawer):
     generate_button.config(state=tk.DISABLED)  # Disable the button
     solve_button.config(state=tk.DISABLED)  # Disable the button
     disable_key_controls()  # Disable key controls
-    
+    content = "Manual Mode: Use arrow keys to navigate (press ‘f’ to calculate shortest path)"
+    update_label(content)
+    log_text.config(text=" ")
+    log_text.update()
     # Move the turtle back to the initial starting position before generating the maze
     if initial_start_position:
         Move_Turtle().move_turtle_to_start(t, initial_start_position)
@@ -401,7 +420,9 @@ def follow_path(t):
     screen.tracer(1, 0)  # Enable automatic screen updates
         # Wait for the user to press 'c' before enabling key controls
     continue_flag = False
-    content = f"Automatic Pilot: Destination {next_position} reached in {steps} steps. Press ‘c’ to continue."
+    px,py = next_position
+    
+    content = f"Automatic Pilot: Destination {(py,px)} reached in {steps} steps. Press ‘c’ to continue."
     update_label(content)
     while not continue_flag:
         screen.update()
@@ -422,8 +443,14 @@ def run_called_maze():
         
     maze_str = read_file_from_argument()
     maze = string_to_maze(maze_str)
-    if not Validator().run_all_checks(maze):
+    passed , error = Validator().run_all_checks(maze)
+    if not passed:
         print("Maze failed validation checks. Please provide a valid maze.")
+        error = error + "\n Press Enter to continue to generate random maze..."
+        log_text.config(text=error)
+        log_text.update()
+        print("Press Enter to continue...")
+        wait_for_enter()
         generate_new_maze(t, tile_drawer)
         return
     content = "Manual Mode: Use arrow keys to navigate (press ‘f’ to calculate shortest path)"
@@ -435,7 +462,36 @@ def run_called_maze():
     
     generate_button.config(state=tk.NORMAL)  # Re-enable the button
     enable_key_controls()  # Re-enable key controls
+
+def open_file_input_window():
+    # Create a new window
+    file_input_window = Toplevel(root)
+    file_input_window.title("Input File")
+
+    # Create a label and text entry for file input
+    file_label = tk.Label(file_input_window, text="Enter file path:", font='Helvetica 10')
+    file_label.grid(padx=10, pady=10, row=0, column=0)
+
+    file_entry = Entry(file_input_window, width=50)
+    file_entry.grid(padx=10, pady=10, row=0, column=1)
     
+    def submit_file():
+        file_path = file_entry.get()
+        print(f"File path entered: {file_path}")
+        # Add your file handling logic here
+        #make sure its a txt file
+        #check if the file exists
+        #check if the file is a valid maze
+        file_input_window.destroy()
+        
+    # Create a submit button
+    submit_button = Button(file_input_window, text="Submit", command=submit_file)
+    cancel_button = Button(file_input_window, text="Cancel", command=file_input_window.destroy)
+    submit_button.grid(padx=75, pady=10, row=1, column=1, sticky='nsew')
+    cancel_button.grid(padx=75, pady=10, row=1, column=0, sticky='nsew')
+
+
+        
 def main():
     global selected_algorithm
     global generate_button
@@ -447,7 +503,7 @@ def main():
     global steps
     global content
     global label_turtle
-    global statuses, status_pause_label, status_path_label
+    global statuses, status_pause_label, status_path_label, error, log_text
     
     root = tk.Tk()
     root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
@@ -459,6 +515,7 @@ def main():
     screen.bgcolor("white")
     content = " "
     statuses = "Autopilot active"
+    error = " "
     t = turtle.RawTurtle(screen)
     t.speed(1)
     t.fillcolor('red')  # Set turtle fill color
@@ -487,19 +544,26 @@ def main():
     solve_button.grid(padx=75, pady=10, row=1, column=11, sticky='nsew')
     
     algorithm_frame = tk.Frame(root)
-    algorithm_frame.grid(padx=2, pady=2, row=2, column=11, sticky='nsew')
+    algorithm_frame.grid(padx=2, pady=2, row=3, column=11, sticky='nsew')
+    algorithm_frame.grid_rowconfigure(0, weight=1)
+    algorithm_frame.grid_columnconfigure(0, weight=1)
     #add text to the frame make the font bold
     
-    algorithm_label = tk.Label(algorithm_frame, text="Select Algorithm", font='Helvetica 10 bold')
-    algorithm_label.grid(padx=2, pady=2, row=0, column=0)
-    
+    file_input_button = Button(root, text="Input File", command=open_file_input_window)
+    file_input_button.grid(padx=75, pady=10, row=2, column=11, sticky='nsew')
 
     
+    algorithm_label = tk.Label(algorithm_frame, text="Select Algorithm", font='Helvetica 13 bold underline' )
+    algorithm_label.grid(padx=2, pady=2, row=0, column=0, columnspan=4, sticky='nsew')
+    
+    radio_frame = tk.Frame(algorithm_frame, bg='#d3d3d3', bd=2, relief='groove')
+    radio_frame.grid(padx=2, pady=2, row=1, column=0, columnspan=4, sticky='nsew')
+    
     selected_algorithm = tk.StringVar(value="left_hand")
-    left_hand_radio = tk.Radiobutton(algorithm_frame, text="Left Hand", variable=selected_algorithm, value="left_hand")
-    depth_first_radio = tk.Radiobutton(algorithm_frame, text="Depth First", variable=selected_algorithm, value="depth_first")
-    breadth_first_radio = tk.Radiobutton(algorithm_frame, text="Breadth First", variable=selected_algorithm, value="breadth_first")
-    astar_radio = tk.Radiobutton(algorithm_frame, text="A* Search", variable=selected_algorithm, value="a_star")
+    left_hand_radio = tk.Radiobutton(radio_frame, text="Left Hand", variable=selected_algorithm, value="left_hand", bg='#d3d3d3')
+    depth_first_radio = tk.Radiobutton(radio_frame, text="Depth First", variable=selected_algorithm, value="depth_first", bg='#d3d3d3')
+    breadth_first_radio = tk.Radiobutton(radio_frame, text="Breadth First", variable=selected_algorithm, value="breadth_first", bg='#d3d3d3')
+    astar_radio = tk.Radiobutton(radio_frame, text="A* Search", variable=selected_algorithm, value="a_star", bg='#d3d3d3')
 
     left_hand_radio.grid(padx=2, pady=2, row=1, column=0)
     depth_first_radio.grid(padx=2, pady=2, row=1, column=1)
@@ -507,7 +571,7 @@ def main():
     astar_radio.grid(padx=2, pady=2, row=1, column=3)
     
     status_frame = tk.Frame(root)
-    status_frame.grid(padx=2, pady=2, row=3, column=11, sticky='nsew')
+    status_frame.grid(padx=2, pady=2, row=4, column=11, sticky='nsew')
     
     status_frame.grid_rowconfigure(0, weight=1)
     status_frame.grid_columnconfigure(0, weight=1)
@@ -517,6 +581,16 @@ def main():
     
     status_path_label = tk.Label(status_frame, text=f"Path Status: {statuses}", font='Helvetica 12 ')
     status_path_label.grid(padx=2, pady=2, row=1, column=0, sticky='nsew')
+    
+    log_frame = tk.Frame(root)
+    log_frame.grid(padx=2, pady=2, row=5, column=11, sticky='nsew')
+    
+    log_frame.grid_rowconfigure(0, weight=1)
+    log_frame.grid_columnconfigure(0, weight=1)
+    
+    log_text = tk.Label(log_frame, text=error, font='Helvetica 10 bold', fg='red')
+    log_text.grid(row=0, column=0, sticky='nsew')
+
     
     screen.onkey(lambda: solve_maze(t, tile_drawer), 'f')
     screen.onkey(lambda: follow_path(t), 'g')

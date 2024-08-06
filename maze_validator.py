@@ -27,10 +27,23 @@ class Validator:
                     end = True
         return start and end
     
+    def check_multiple_start_end_points(self, maze):
+        start_count = 0
+        end_count = 0
+        for row in maze:
+            for cell in row:
+                if cell == 's':
+                    start_count += 1
+                if cell == 'e':
+                    end_count += 1
+        if start_count > 1 or end_count > 1:
+            return False
+        return True
+        
     def check_illegal_characters(self, maze):
         for row in maze:
             for cell in row:
-                if cell not in ['s', 'e', 'X', '.', '-', ',', 'N']:
+                if cell not in ['s', 'e', 'X', '.']:
                     return False
         return True
     
@@ -76,19 +89,34 @@ class Validator:
     def run_all_checks(self,maze):
 
         if not self.check_file_empty(maze):
-            print("Maze is empty")
-            return False
-        if not self.check_start_end_points(maze):
-            print("Maze does not have either start or/and end points")
+            error = "Maze is empty"
             
+            return False, error
+        
+        if not self.check_start_end_points(maze):
+            error = "Maze does not have either start or/and end points"
+            
+            return False, error
+        
+        if not self.check_multiple_start_end_points(maze):
+            error = "Maze has multiple start or/and end points"
+            
+            return False, error
+        
         if not self.check_illegal_characters(maze):
-            print("Maze contains illegal characters")
-            return False
+            error = "Maze contains illegal characters"
+            
+            return False, error
         
         if not self.check_maze_edges(maze):
-            print("Maze does not have walls on the edges")
-            return False
+            error = "Maze does not have walls on the edges"
+            
+            return False, error
+        
         if not self.check_maze_solvable(maze):
-            print("Maze is not solvable")
-            return False
-        return True
+            error = "Maze is not solvable"
+            
+            return False, error
+        
+        return True, None
+    
