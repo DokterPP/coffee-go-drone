@@ -1,7 +1,7 @@
 class LeftHand_MazeSolver:
     def __init__(self, pos_x, pos_y, maze):
-        self.start_x = pos_x
-        self.start_y = pos_y
+        self.pos_x = pos_x
+        self.pos_y = pos_y
         self.maze = maze
         self.dx = [0, 1, 0, -1]  
         self.dy = [-1, 0, 1, 0]  
@@ -22,8 +22,17 @@ class LeftHand_MazeSolver:
         return False
 
     def solve(self):
-        x, y = self.start_x, self.start_y
-
+        x, y = self.pos_x, self.pos_y
+        
+        start_x, start_y = None, None
+        for my, row in enumerate(self.maze):
+            for mx, cell in enumerate(row):
+                if cell == 's':
+                    start_x, start_y = mx, my
+                    break
+            if start_x is not None:
+                break
+        
         while self.path_stack:
             x, y = self.path_stack[-1]  # Get the current position from the top of the stack
 
@@ -55,7 +64,7 @@ class LeftHand_MazeSolver:
                     self.direction = self.turn_right(self.turn_right(self.direction))  # Reset to the direction before last turn
 
         # Mark the start position with 's'
-        self.maze[self.start_y][self.start_x] = 's'
+        self.maze[start_y][start_x] = 's'
 
         return self.maze, self.numbered_path_nodes
 
