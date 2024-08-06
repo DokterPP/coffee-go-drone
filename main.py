@@ -3,9 +3,14 @@ import sys
 import tkinter as tk
 from maze.tile import Tile
 from generate_maze import Maze_Generator
-from Algorithms import left_hand, depth_first, breadth_first, astar
 from movement import Move_Turtle
 from maze_validator import Validator
+
+from Algorithms.left_hand import LeftHand_MazeSolver
+from Algorithms.depth_first import DepthFirst_MazeSolver
+from Algorithms.breadth_first import BreadthFirst_MazeSolver
+from Algorithms.astar import AStar_MazeSolver
+
 
 # Define constants
 TILE_SIZE = 20
@@ -286,25 +291,39 @@ def solve_maze(t, tile_drawer):
     disable_key_controls()  # Disable key controls
     # Move the turtle back to the initial starting position before solving the maze
     gx,gy,x,y = find_position()
+    print(f"Start position: ({gx}, {gy})")
+    print(f"Current position: ({x}, {y})")
     t.setheading(0)  # Set the turtle to face up
     maze_str = read_file(FILE_IN_PLAY)
     maze = string_to_maze(maze_str)
 
+## Using Left Hand
     if selected_algorithm.get() == "left_hand":
-        solved_maze, solved_path = left_hand.solve_maze(gx,gy, maze)
+        left_hand_solver = LeftHand_MazeSolver(gx, gy, maze)
+        solved_maze, solved_path = left_hand_solver.solve()
+
+## Using Depth First
     elif selected_algorithm.get() == "depth_first":
-        solved_maze, solved_path = depth_first.solve_maze_dfs(gx,gy,maze)
+        depth_first_solver = DepthFirst_MazeSolver(gx, gy, maze)
+        solved_maze, solved_path = depth_first_solver.solve_maze_dfs()
+
+## Using Breadth First
     elif selected_algorithm.get()== "breadth_first":
-        solved_maze, solved_path  = breadth_first.solve_maze_bfs(gx,gy,maze)
+        breadth_first_solver = BreadthFirst_MazeSolver(gx, gy, maze)
+        solved_maze, solved_path = breadth_first_solver.solve_maze_bfs()
+
+## Using A Star
     elif selected_algorithm.get() == "a_star":
-        solved_maze, solved_path  = astar.solve_maze_astar(gx,gy,maze)
+        astar_solver = AStar_MazeSolver(gx, gy, maze)
+        solved_maze, solved_path = astar_solver.solve_maze_astar()
+
+
+
     # Convert the solved maze list back to a string
     solved_maze_str = '\n'.join([''.join(row) for row in solved_maze])
     solved_path_coordinates = solved_path
     initial_start_position = draw_maze(solved_maze_str, t, tile_drawer)  # Save the new starting position
     Move_Turtle().move_turtle_to_start(t,(x,y))
-    content = "Automatic Pilot: Press ‘g’ to follow pre-calculated path."
-    update_label(content)
     screen.update()
     
     generate_button.config(state=tk.NORMAL)  # Re-enable the button
