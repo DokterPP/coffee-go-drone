@@ -1,5 +1,5 @@
 import turtle
-import keyboard
+
 
 # Define the maze
 maze = [
