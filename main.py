@@ -306,9 +306,13 @@ def solve_maze(t, tile_drawer):
     
 def follow_path(t):
     global paused, continue_flag
+    global solved_path_coordinates, steps
+    if not solved_path_coordinates:
+        print("No path to follow.")
+        return
     Move_Turtle().move_turtle_to_start(t, (x, y))
     screen.tracer(1, 10)  # Disable automatic screen updates
-    global solved_path_coordinates, steps
+
     steps = 0
     generate_button.config(state=tk.DISABLED)  # Disable the button
     solve_button.config(state=tk.DISABLED)  # Disable the button
