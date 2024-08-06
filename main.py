@@ -295,8 +295,6 @@ def solve_maze(t, tile_drawer):
     disable_key_controls()  # Disable key controls
     # Move the turtle back to the initial starting position before solving the maze
     gx,gy,x,y = find_position()
-    print(f"Start position: ({gx}, {gy})")
-    print(f"Current position: ({x}, {y})")
     t.setheading(0)  # Set the turtle to face up
     maze_str = read_file(FILE_IN_PLAY)
     maze = string_to_maze(maze_str)
@@ -355,7 +353,6 @@ def follow_path(t):
         solve_button.config(state=tk.NORMAL)  # Re-enable the button
         enable_key_controls()
         return
-    print("Path coordinates:", solved_path_coordinates)
     # Follow the path step by step in sequence
 
     t.penup()
@@ -366,7 +363,6 @@ def follow_path(t):
 
         current_position = solved_path_coordinates[i - 1]
         next_position = solved_path_coordinates[i]
-        print(f"Moving from {current_position} to {next_position}")
         steps += 1
         root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
         t.speed(1)
@@ -397,7 +393,6 @@ def follow_path(t):
     screen.tracer(1, 0)  # Enable automatic screen updates
         # Wait for the user to press 'c' before enabling key controls
     continue_flag = False
-    print("Waiting for 'c' to continue...")
     content = f"Automatic Pilot: Destination {next_position} reached in {steps} steps. Press ‘c’ to continue."
     update_label(content)
     while not continue_flag:
