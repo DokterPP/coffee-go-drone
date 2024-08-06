@@ -60,11 +60,7 @@ class Maze_Generator:
             for row in maze:
                 file.write(''.join(['X' if cell == 0 else '.' if cell == 1 else cell for cell in row])+ '\n')
 
-    def remove_random_walls(self):
-        
-        width = random.randint(10, 50)
-        height = random.randint(10, 30)
-        maze = self.generate_maze(width, height)
+    def remove_random_walls(self, maze):
         
         height = len(maze)
         width = len(maze[0])
@@ -94,4 +90,9 @@ class Maze_Generator:
     # After gene
     
     # rating the maze and before returning it, call remove_random_walls
-
+    def generate_maze_final(self):
+        width = random.randint(10, 50)
+        height = random.randint(10, 30)
+        maze = self.generate_maze(width, height)
+        output = self.remove_random_walls(maze)
+        return output

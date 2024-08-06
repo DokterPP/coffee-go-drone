@@ -65,7 +65,7 @@ def generate_new_maze(t, tile_drawer):
     if initial_start_position:
         Move_Turtle().move_turtle_to_start(t, initial_start_position)
 
-    maze_rand = Maze_Generator().remove_random_walls()
+    maze_rand = Maze_Generator().generate_maze_final()
     Maze_Generator().write_maze_to_file(maze_rand, MAZE_FILE)
     maze_str = read_file_from_argument()
     initial_start_position = draw_maze(maze_str, t, tile_drawer)  # Save the new starting position
@@ -81,16 +81,23 @@ def disable_key_controls():
     screen.onkey(None, 'Down')
     screen.onkey(None, 'Left')
     screen.onkey(None, 'Right')
+    screen.onkey(None, 'r')
+    screen.onkey(None, 'g')
 
 def enable_key_controls():
+    
     screen.onkey(lambda: Move_Turtle().move_up(t, TILE_SIZE), 'Up')
     screen.onkey(lambda: Move_Turtle().move_down(t, TILE_SIZE), 'Down')
     screen.onkey(lambda: Move_Turtle().move_left(t, TILE_SIZE), 'Left')
     screen.onkey(lambda: Move_Turtle().move_right(t, TILE_SIZE), 'Right')
+    screen.onkey(lambda: solve_maze(t, tile_drawer), 'r')
+    screen.onkey(lambda: follow_path(t), 'g')
 
 def solve_maze(t, tile_drawer):
     global initial_start_position, solved_path_coordinates
-    
+    solve_button.config(state=tk.DISABLED)  # Disable the button
+    generate_button.config(state=tk.DISABLED)  # Disable the button
+    disable_key_controls()  # Disable key controls
     # Move the turtle back to the initial starting position before solving the maze
     if initial_start_position:
         Move_Turtle().move_turtle_to_start(t, initial_start_position)
@@ -112,19 +119,30 @@ def solve_maze(t, tile_drawer):
     initial_start_position = draw_maze(solved_maze_str, t, tile_drawer)  # Save the new starting position
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
     screen.update()
-
+    
+    generate_button.config(state=tk.NORMAL)  # Re-enable the button
+    solve_button.config(state=tk.NORMAL)  # Re-enable the button
+    enable_key_controls()  # Re-enable key controls
+    
 def string_to_maze(maze_str):
     return [list(row) for row in maze_str.split('\n') if row]
 
 def follow_path(t):
+    Move_Turtle().move_turtle_to_start(t, initial_start_position)
     global solved_path_coordinates
+    generate_button.config(state=tk.DISABLED)  # Disable the button
+    solve_button.config(state=tk.DISABLED)  # Disable the button
+    disable_key_controls()  
     if not solved_path_coordinates:
             print("No path to follow.")
+            generate_button.config(state=tk.NORMAL)  # Re-enable the button
+            solve_button.config(state=tk.NORMAL)  # Re-enable the button
+            enable_key_controls()  
             return
     print("Path coordinates:", solved_path_coordinates)
     # Follow the path step by step in sequence
     
-    t.speed(1)
+    t.penup()
     for i in range(1, len(solved_path_coordinates)):
         current_position = solved_path_coordinates[i - 1]
         next_position = solved_path_coordinates[i]
@@ -145,12 +163,19 @@ def follow_path(t):
             t.forward(TILE_SIZE)
 
         screen.update()
+    t.pendown()
+    generate_button.config(state=tk.NORMAL)  # Re-enable the button
+    solve_button.config(state=tk.NORMAL)  # Re-enable the button
+    enable_key_controls()  
+    
     
 def main():
     global selected_algorithm
     global generate_button
+    global solve_button
     global screen
-
+    global t
+    global tile_drawer
     root = tk.Tk()
     root.title("Maze Generator with Turtle")
 
