@@ -1,5 +1,8 @@
 import turtle
+<<<<<<< HEAD
+=======
 
+>>>>>>> 36ac0e6e3383f84369acf342beac87725ef092e4
 
 # Define the maze
 maze = [
@@ -9,7 +12,7 @@ maze = [
     "X..X.X.X.X.X",
     "XX.XXX.X...X",
     "X........X.X",
-    "XsXX...X....",
+    "XsXX...X...X",
     "XXXXXXXXXXXX"
 ]
 
