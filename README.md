@@ -46,3 +46,9 @@ drone is red triangle
 | `up arrow`   | move up       | Will move the drone to the tile at top (if free) and only if drone is in manual operation.    |
 | `down arrow` | move down     | Will move the drone to the tile at bottom (if free) and only if drone is in manual operation. |
 | `q`          | quit          | Will quit the application                                                                     |
+
+
+Problems to solve by today
+1. Wrong coordinated recorded for maze starting postion
+2. Movement File currently going through walls -> Fix
+3. Manual Movement and start solving from that postion when solve maze is called
