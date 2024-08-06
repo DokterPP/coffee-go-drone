@@ -1,5 +1,4 @@
 import turtle
-import keyboard
 
 # Define the maze
 maze = [
@@ -9,7 +8,7 @@ maze = [
     "X..X.X.X.X.X",
     "XX.XXX.X...X",
     "X........X.X",
-    "XsXX...X....",
+    "XsXX...X....X",
     "XXXXXXXXXXXX"
 ]
 
