@@ -9,19 +9,45 @@ from movement import Move_Turtle
 # Define constants
 TILE_SIZE = 20
 MAZE_FILE = 'maze.txt'
+DEFAULT_MAZE = 'default.txt'
+FILE_IN_PLAY = None
+
 
 # Global variables to store the initial start position and the solved path
 initial_start_position = None
 solved_path_coordinates = []
 
-def read_file_from_argument():
-    try:
-        with open(MAZE_FILE, 'r') as file:
-            content = file.read()
-            return content
-    except FileNotFoundError:
-        print(f"The file {MAZE_FILE} was not found.")
-        sys.exit(1)
+# change it such that if a file is passed as an argument, it will read the file and generate the maze
+def read_file_from_argument(file_name=None):
+    global FILE_IN_PLAY
+    if len(sys.argv) > 1:
+        file_name = sys.argv[1]
+        try:
+            # Open and read the file
+            with open(file_name, 'r') as file:
+                content = file.read()
+                FILE_IN_PLAY = file_name
+                return content
+        except FileNotFoundError:
+            print(f"The file {file_name} was not found.")
+    else:
+        print("Please provide a text file as an argument.")
+        return read_file(DEFAULT_MAZE)
+
+        
+def read_file(file_name=None):
+    global FILE_IN_PLAY
+    if file_name:
+        try:
+            # Open and read the file
+            with open(file_name, 'r') as file:
+                content = file.read()
+                FILE_IN_PLAY = file_name
+                return content
+        except FileNotFoundError:
+            print(f"The file {file_name} was not found.")
+    else:
+        print("Please provide a text file as an argument.")
 
 def draw_maze(maze, t, tile_drawer):
     screen.tracer(0, 0)  # Disable automatic screen updates
@@ -49,8 +75,13 @@ def draw_maze(maze, t, tile_drawer):
             elif char == '-':
                 tile_drawer.draw_tile(screen_x, screen_y, 'white', TILE_SIZE)
                 tile_drawer.draw_circle(screen_x + TILE_SIZE / 2, screen_y - TILE_SIZE / 2, 'yellow', TILE_SIZE / 3)  # Draw circle
-            else:
+            elif char == '.':
                 tile_drawer.draw_tile(screen_x, screen_y, 'white', TILE_SIZE)
+            elif char == ',':
+                tile_drawer.draw_tile(screen_x, screen_y, 'yellow', TILE_SIZE)
+            else:
+                raise ValueError(f"Invalid character in maze: '{char}' at position ({x}, {y})")
+            
     screen.tracer(1, 0)  # Enable automatic screen updates            
     screen.update()  # Update the screen once all the tiles are drawn
     return start_position
@@ -67,7 +98,7 @@ def generate_new_maze(t, tile_drawer):
 
     maze_rand = Maze_Generator().generate_maze_final()
     Maze_Generator().write_maze_to_file(maze_rand, MAZE_FILE)
-    maze_str = read_file_from_argument()
+    maze_str = read_file(MAZE_FILE)
     initial_start_position = draw_maze(maze_str, t, tile_drawer)  # Save the new starting position
     solved_path_coordinates = []  # Clear any previous path
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
@@ -102,7 +133,7 @@ def solve_maze(t, tile_drawer):
     if initial_start_position:
         Move_Turtle().move_turtle_to_start(t, initial_start_position)
 
-    maze_str = read_file_from_argument()
+    maze_str = read_file(FILE_IN_PLAY)
     maze = string_to_maze(maze_str)
     
     if selected_algorithm.get() == "left_hand":
@@ -156,10 +187,10 @@ def follow_path(t):
             t.setheading(180)  # Facing West (left)
             t.forward(TILE_SIZE)
         elif next_position[1] > current_position[1]:
-            t.setheading(270)  # Facing North (up)
+            t.setheading(270)  # Facing South (down)
             t.forward(TILE_SIZE)
         elif next_position[1] < current_position[1]:
-            t.setheading(90)  # Facing South (down)
+            t.setheading(90)  # Facing North (up)
             t.forward(TILE_SIZE)
 
         screen.update()
@@ -168,6 +199,24 @@ def follow_path(t):
     solve_button.config(state=tk.NORMAL)  # Re-enable the button
     enable_key_controls()  
     
+def run_called_maze():
+    global initial_start_position, solved_path_coordinates
+    
+    generate_button.config(state=tk.DISABLED)  # Disable the button
+    disable_key_controls()  # Disable key controls
+    
+    # Move the turtle back to the initial starting position before generating the maze
+    if initial_start_position:
+        Move_Turtle().move_turtle_to_start(t, initial_start_position)
+        
+    maze_str = read_file_from_argument()
+    initial_start_position = draw_maze(maze_str, t, tile_drawer)  # Save the new starting position
+    solved_path_coordinates = []  # Clear any previous path
+    Move_Turtle().move_turtle_to_start(t, initial_start_position)
+    screen.update()
+    
+    generate_button.config(state=tk.NORMAL)  # Re-enable the button
+    enable_key_controls()  # Re-enable key controls
     
 def main():
     global selected_algorithm
@@ -176,11 +225,12 @@ def main():
     global screen
     global t
     global tile_drawer
+    
     root = tk.Tk()
     root.title("Maze Generator with Turtle")
 
     canvas = tk.Canvas(root, width=1000, height=700)
-    canvas.pack(fill=tk.BOTH, expand=True)
+    canvas.grid(padx=2, pady=2, row=0, column=0, rowspan=10, columnspan=10) # , sticky='nsew')
 
     screen = turtle.TurtleScreen(canvas)
     screen.bgcolor("white")
@@ -191,16 +241,17 @@ def main():
     t.showturtle()  # Ensure the turtle is visible
     t.pencolor('black')  # Set the pen color explicitly
     tile_drawer = Tile(t)
-
     generate_button = tk.Button(root, text="Generate New Maze", command=lambda: generate_new_maze(t, tile_drawer))
     solve_button = tk.Button(root, text="Solve Maze", command=lambda: solve_maze(t, tile_drawer))
     
-    generate_button.pack(side=tk.BOTTOM)
-    solve_button.pack(side=tk.BOTTOM)
+    generate_button.grid(padx=75, pady=10, row=0, column=11, sticky='nsew')
+    solve_button.grid(padx=75, pady=10, row=1, column=11, sticky='nsew')
     
     algorithm_frame = tk.Frame(root)
-    algorithm_frame.pack(side=tk.BOTTOM)
-
+    algorithm_frame.grid(padx=2, pady=2, row=2, column=11, sticky='nsew')
+    #add text to the frame make the font bold
+    algorithm_label = tk.Label(algorithm_frame, text="Select Algorithm", font='Helvetica 10 bold')
+    algorithm_label.grid(padx=2, pady=2, row=0, column=0)
     selected_algorithm = tk.StringVar(value="left_hand")
 
     left_hand_radio = tk.Radiobutton(algorithm_frame, text="Left Hand", variable=selected_algorithm, value="left_hand")
@@ -208,15 +259,15 @@ def main():
     breadth_first_radio = tk.Radiobutton(algorithm_frame, text="Breadth First", variable=selected_algorithm, value="breadth_first")
     astar_radio = tk.Radiobutton(algorithm_frame, text="A* Search", variable=selected_algorithm, value="a_star")
 
-    left_hand_radio.pack(side=tk.LEFT)
-    depth_first_radio.pack(side=tk.LEFT)
-    breadth_first_radio.pack(side=tk.LEFT)
-    astar_radio.pack(side=tk.LEFT)
+    left_hand_radio.grid(padx=2, pady=2, row=1, column=0)
+    depth_first_radio.grid(padx=2, pady=2, row=1, column=1)
+    breadth_first_radio.grid(padx=2, pady=2, row=1, column=2)
+    astar_radio.grid(padx=2, pady=2, row=1, column=3)
     
     screen.onkey(lambda: solve_maze(t, tile_drawer), 'r')
     screen.onkey(lambda: follow_path(t), 'g')
     enable_key_controls()
-
+    run_called_maze()
     screen.listen()
     
     root.mainloop()
