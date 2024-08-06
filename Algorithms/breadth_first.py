@@ -17,11 +17,22 @@ class Deque:
     def __len__(self):
         return len(self.items)
 
-def solve_maze_bfs(maze):
+def solve_maze_bfs(pos_x, pos_y, maze):
     dx = [0, 1, 0, -1]
     dy = [-1, 0, 1, 0]
     numbered_path_nodes = []
-    x, y = 1, len(maze) - 2  # Assuming the start position is bottom left
+    
+    x, y = pos_x, pos_y  # Start position
+    
+    start_x, start_y = None, None
+    for my, row in enumerate(maze):
+        for mx, cell in enumerate(row):
+            if cell == 's':
+                start_x, start_y = mx, my
+                break
+        if start_x is not None:
+            break
+        
     start_position = (x, y)
     
     queue = Deque()
@@ -62,8 +73,7 @@ def solve_maze_bfs(maze):
                 maze[py][px] = '-'  # Mark the shortest path
         
         # Mark the start position last to keep it as 's'
-        sx, sy = start_position
-        maze[sy][sx] = 's'
+        maze[start_y][start_x] = 's'
     
     print("Final maze:")  # Debug print before final maze print
     for row in maze:

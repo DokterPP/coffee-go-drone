@@ -1,10 +1,22 @@
-def solve_maze(maze):
+def solve_maze(pos_x, pos_y , maze):
     dx = [0, 1, 0, -1]
     dy = [-1, 0, 1, 0]
     direction = 0  # Start direction facing up
+    x, y = pos_x, pos_y  # Start position
     
-    x, y = 1, len(maze) - 2  # Assuming the start position is bottom left, just for demonstration
+    start_x, start_y = None, None
+    for my, row in enumerate(maze):
+        for mx, cell in enumerate(row):
+            if cell == 's':
+                start_x, start_y = mx, my
+                break
+        if start_x is not None:
+            break
+        
     start_position = (x, y)
+    # x, y = 1, len(maze) - 2  # Assuming the start position is bottom left, just for demonstration
+
+    print(f"Start position: {start_position}")
     
     path_stack = [(x, y)]  # Initialize stack with the start position
     
@@ -20,7 +32,7 @@ def solve_maze(maze):
     def is_path(x, y, direction):
         nx, ny = x + dx[direction], y + dy[direction]
         if 0 <= ny < len(maze) and 0 <= nx < len(maze[0]):
-            return maze[ny][nx] in ['.', 'e']
+            return maze[ny][nx] in ['.', 'e', 's']
         return False
     
     while path_stack:
@@ -54,8 +66,7 @@ def solve_maze(maze):
                 
 
     # Mark the start position with 's'
-    sx, sy = start_position
-    maze[sy][sx] = 's'
+    maze[start_y][start_x] = 's'
     
     print("Final maze:")  # Debug print before final maze print
     for row in maze:

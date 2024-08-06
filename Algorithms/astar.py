@@ -3,11 +3,23 @@ import heapq
 def heuristic(a, b):
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-def solve_maze_astar(maze):
+def solve_maze_astar(pos_x, pos_y, maze):
     dx = [0, 1, 0, -1]
     dy = [-1, 0, 1, 0]
     
-    start = (1, len(maze) - 2)
+    x, y = pos_x, pos_y  # Start position
+    
+    start_x, start_y = None, None
+    for my, row in enumerate(maze):
+        for mx, cell in enumerate(row):
+            if cell == 's':
+                start_x, start_y = mx, my
+                break
+        if start_x is not None:
+            break
+        
+    start = (x, y)
+    
     goal = None
     numbered_path_nodes = []
     
@@ -60,9 +72,8 @@ def solve_maze_astar(maze):
                 maze[py][px] = '-'
         
         # Mark the start and goal
-        sx, sy = start
         ex, ey = goal
-        maze[sy][sx] = 's'
+        maze[start_y][start_x] = 's'
         maze[ey][ex] = 'e'
     
     print("Final maze:")

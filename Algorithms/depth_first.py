@@ -1,10 +1,18 @@
-def solve_maze_dfs(maze):
+def solve_maze_dfs(pos_x, pos_y,maze):
     dx = [0, 1, 0, -1]
     dy = [-1, 0, 1, 0]
     
-    x, y = 1, len(maze) - 2  # Assuming the start position is bottom left
-    start_position = (x, y)
+    x, y = pos_x, pos_y  # Start position
     
+    start_x, start_y = None, None
+    for my, row in enumerate(maze):
+        for mx, cell in enumerate(row):
+            if cell == 's':
+                start_x, start_y = mx, my
+                break
+        if start_x is not None:
+            break
+    start_position = (x, y)
     stack = [(x, y)]
     visited = set(stack)
     numbered_path_nodes = []
@@ -18,7 +26,7 @@ def solve_maze_dfs(maze):
         moved = False
         for direction in range(4):
             nx, ny = x + dx[direction], y + dy[direction]
-            if 0 <= ny < len(maze) and 0 <= nx < len(maze[0]) and maze[ny][nx] in ['.', 'e'] and (nx, ny) not in visited:
+            if 0 <= ny < len(maze) and 0 <= nx < len(maze[0]) and maze[ny][nx] in ['.', 'e', 's'] and (nx, ny) not in visited:
                 stack.append((nx, ny))
                 visited.add((nx, ny))
                 maze[y][x] = '-'  # Mark the current path
@@ -32,8 +40,7 @@ def solve_maze_dfs(maze):
             numbered_path_nodes.pop()
     
     # Mark the start position with 's'
-    sx, sy = start_position
-    maze[sy][sx] = 's'
+    maze[start_y][start_x] = 's'
     
     print("Final maze:")  # Debug print before final maze print
     for row in maze:

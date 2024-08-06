@@ -27,8 +27,24 @@ class Validator:
                     end = True
         return start and end
     
+    def check_illegal_characters(self, maze):
+        for row in maze:
+            for cell in row:
+                if cell not in ['s', 'e', 'X', '.', '-', ',', 'N']:
+                    return False
+        return True
+    
     def check_maze_solvable(self, maze):
-        solved_maze, solved_path  = astar.solve_maze_astar(maze)
+        start_x, start_y = None, None
+        for my, row in enumerate(maze):
+            for mx, cell in enumerate(row):
+                if cell == 's':
+                    start_x, start_y = mx, my
+                    break
+            if start_x is not None:
+                break
+            
+        solved_maze, solved_path  = astar.solve_maze_astar(start_x, start_y, maze)
         if solved_path:
             return True
         else:
@@ -64,6 +80,10 @@ class Validator:
         if not self.check_start_end_points(maze):
             print("Maze does not have either start or/and end points")
             
+        if not self.check_illegal_characters(maze):
+            print("Maze contains illegal characters")
+            return False
+        
         if not self.check_maze_edges(maze):
             print("Maze does not have walls on the edges")
             return False
