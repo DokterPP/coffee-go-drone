@@ -157,6 +157,10 @@ def reset_position(event=None):
 def update_label(new_content):
     label_turtle.clear()  # Clear the previous text
     label_turtle.write(f"DRONE STATUS= {new_content}", align="center", font=("Helvetica", 12))
+    
+def update_status(new_status):
+    status_label.config(text=f"Status: {new_status}")
+    status_label.update()
         
 # Movement functions
 def move(direction):
@@ -421,7 +425,7 @@ def main():
     global steps
     global content
     global label_turtle
-    global statuses
+    global statuses, status_label
     
     root = tk.Tk()
     root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
@@ -486,7 +490,7 @@ def main():
     status_frame.grid_rowconfigure(0, weight=1)
     status_frame.grid_columnconfigure(0, weight=1)
     
-    status_label = tk.Label(status_frame, text=f"{statuses}", font='Helvetica 12 ')
+    status_label = tk.Label(status_frame, text=f"Status: {statuses}", font='Helvetica 12 ')
     status_label.grid(padx=2, pady=2, row=0, column=0, sticky='nsew')
     
     screen.onkey(lambda: solve_maze(t, tile_drawer), 'f')
