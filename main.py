@@ -5,6 +5,7 @@ from maze.tile import Tile
 from generate_maze import Maze_Generator
 from Algorithms import left_hand, depth_first, breadth_first, astar
 from movement import Move_Turtle
+from maze_validator import Validator
 
 # Define constants
 TILE_SIZE = 20
@@ -12,11 +13,13 @@ MAZE_FILE = 'maze.txt'
 DEFAULT_MAZE = 'default.txt'
 FILE_IN_PLAY = None
 steps = 0
-
+maze_str = None
 # Global variables to store the initial start position and the solved path
 initial_start_position = None
 solved_path_coordinates = []
 
+
+# HELPER FUNCTIONS
 # change it such that if a file is passed as an argument, it will read the file and generate the maze
 def read_file_from_argument(file_name=None):
     global FILE_IN_PLAY
@@ -49,7 +52,110 @@ def read_file(file_name=None):
     else:
         print("Please provide a text file as an argument.")
 
+def string_to_maze(maze_str):
+    return [list(row) for row in maze_str.split('\n') if row]
+
+  
+def disable_key_controls():
+    screen.onkey(None, 'Up')
+    screen.onkey(None, 'Down')
+    screen.onkey(None, 'Left')
+    screen.onkey(None, 'Right')
+    screen.onkey(None, 'r')
+    screen.onkey(None, 'g')
+
+
+def enable_key_controls():
+    global maze_str
+    screen.onkey(move_up, 'Up')
+    screen.onkey(move_down, 'Down')
+    screen.onkey(move_left, 'Left')
+    screen.onkey(move_right, 'Right')
+    screen.onkey(lambda: solve_maze(t, tile_drawer), 'r')
+    screen.onkey(lambda: follow_path(t), 'g')
+    
+
+# Movement functions
+def move_up():
+    global maze_str, screen
+    global new_x, new_y
+    new_x, new_y = t.xcor(), t.ycor() + TILE_SIZE
+    print(new_x, new_y)
+    if is_move_valid(new_x, new_y, maze_str):
+        t.penup()
+        t.setheading(90)
+        t.forward(TILE_SIZE)
+        t.pendown()
+        global steps
+
+        steps += 1
+        root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
+    
+def move_down():
+    global maze_str
+    global new_x, new_y
+    new_x, new_y = t.xcor(), t.ycor() - TILE_SIZE
+    if is_move_valid(new_x, new_y, maze_str):
+        t.penup()
+        t.setheading(270)
+        t.forward(TILE_SIZE)
+        t.pendown()
+        global steps
+        steps += 1
+        root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
+
+def move_left():
+    global maze_str
+    global new_x, new_y
+    new_x, new_y = t.xcor() - TILE_SIZE, t.ycor()
+    if is_move_valid(new_x, new_y, maze_str):
+        t.penup()
+        t.setheading(180)
+        t.forward(TILE_SIZE)
+        t.pendown()
+        global steps
+        steps += 1
+        root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
+
+def move_right():
+    global maze_str
+    global new_x, new_y
+    new_x, new_y = t.xcor() + TILE_SIZE, t.ycor()
+    if is_move_valid(new_x, new_y, maze_str):
+        t.penup()
+        t.setheading(0)
+        t.forward(TILE_SIZE)
+        t.pendown()
+        global steps
+        steps += 1
+        root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
+
+def is_move_valid(x, y, maze):
+    global start_x, start_y
+
+    maze = string_to_maze(maze)
+
+    grid_x = int((x - start_x) // TILE_SIZE)  # Convert x to grid index
+    grid_y = int((start_y - y) // TILE_SIZE)  # Convert y to grid index
+    print(grid_x, grid_y)
+    
+    # Print dimensions for debugging
+    print(len(maze[0]), len(maze))
+    
+    # Check if the grid indices are within bounds
+    if grid_x < 0 or grid_x >= len(maze[0]) or grid_y < 0 or grid_y >= len(maze):
+        return False
+    
+    # Check if the cell is a wall
+    if maze[grid_y][grid_x] == "X":  # Use grid_y for rows, grid_x for columns
+        return False
+    
+    return True
+
+
+
 def draw_maze(maze, t, tile_drawer):
+    global start_x, start_y, maze_height, maze_width, screen_x, screen_y
     screen.tracer(0, 0)  # Disable automatic screen updates
     t.clear()  # Clear previous drawings
     maze_lines = maze.splitlines()
@@ -87,9 +193,9 @@ def draw_maze(maze, t, tile_drawer):
     return start_position
 
 def generate_new_maze(t, tile_drawer):
-    global initial_start_position, solved_path_coordinates
+    global initial_start_position, solved_path_coordinates, maze_rand, steps, maze_str
     steps = 0
-    root.title(f"COFFEE~GO~DRONE: Distance travelled : {steps}")
+    root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
     generate_button.config(state=tk.DISABLED)  # Disable the button
     solve_button.config(state=tk.DISABLED)  # Disable the button
     disable_key_controls()  # Disable key controls
@@ -110,22 +216,8 @@ def generate_new_maze(t, tile_drawer):
     solve_button.config(state=tk.NORMAL)  # Re-enable the button
     enable_key_controls()  # Re-enable key controls
 
-def disable_key_controls():
-    screen.onkey(None, 'Up')
-    screen.onkey(None, 'Down')
-    screen.onkey(None, 'Left')
-    screen.onkey(None, 'Right')
-    screen.onkey(None, 'r')
-    screen.onkey(None, 'g')
 
-def enable_key_controls():
-    
-    screen.onkey(lambda: Move_Turtle().move_up(t, TILE_SIZE), 'Up')
-    screen.onkey(lambda: Move_Turtle().move_down(t, TILE_SIZE), 'Down')
-    screen.onkey(lambda: Move_Turtle().move_left(t, TILE_SIZE), 'Left')
-    screen.onkey(lambda: Move_Turtle().move_right(t, TILE_SIZE), 'Right')
-    screen.onkey(lambda: solve_maze(t, tile_drawer), 'r')
-    screen.onkey(lambda: follow_path(t), 'g')
+
 
 def solve_maze(t, tile_drawer):
     global initial_start_position, solved_path_coordinates
@@ -147,6 +239,7 @@ def solve_maze(t, tile_drawer):
         solved_maze, solved_path  = breadth_first.solve_maze_bfs(maze)
     elif selected_algorithm.get() == "a_star":
         solved_maze, solved_path  = astar.solve_maze_astar(maze)
+        print("Solved path:", solved_path)
     # Convert the solved maze list back to a string
     solved_maze_str = '\n'.join([''.join(row) for row in solved_maze])
     solved_path_coordinates = solved_path
@@ -158,9 +251,6 @@ def solve_maze(t, tile_drawer):
     solve_button.config(state=tk.NORMAL)  # Re-enable the button
     enable_key_controls()  # Re-enable key controls
     
-def string_to_maze(maze_str):
-    return [list(row) for row in maze_str.split('\n') if row]
-
 def follow_path(t):
     
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
@@ -184,7 +274,7 @@ def follow_path(t):
         next_position = solved_path_coordinates[i]
         print(f"Moving from {current_position} to {next_position}")
         steps += 1
-        root.title(f"COFFEE~GO~DRONE: Distance travelled : {steps}")
+        root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
         t.speed(1)
         # Calculate the direction to move
         if next_position[0] > current_position[0]:
@@ -207,7 +297,7 @@ def follow_path(t):
     enable_key_controls()  
     
 def run_called_maze():
-    global initial_start_position, solved_path_coordinates
+    global initial_start_position, solved_path_coordinates, maze_str
     
     generate_button.config(state=tk.DISABLED)  # Disable the button
     disable_key_controls()  # Disable key controls
@@ -217,6 +307,13 @@ def run_called_maze():
         Move_Turtle().move_turtle_to_start(t, initial_start_position)
         
     maze_str = read_file_from_argument()
+    maze = string_to_maze(maze_str)
+    print("Maze:", maze_str)
+    if not Validator().run_all_checks(maze):
+        print("Maze failed validation checks. Please provide a valid maze.")
+        generate_new_maze(t, tile_drawer)
+        return
+
     initial_start_position = draw_maze(maze_str, t, tile_drawer)  # Save the new starting position
     solved_path_coordinates = []  # Clear any previous path
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
@@ -237,7 +334,7 @@ def main():
     
 
     root = tk.Tk()
-    root.title(f"COFFEE~GO~DRONE: Distance travelled : {steps}")
+    root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
 
     canvas = tk.Canvas(root, width=1000, height=700)
     canvas.grid(padx=2, pady=2, row=0, column=0, rowspan=10, columnspan=10) # , sticky='nsew')
@@ -277,8 +374,8 @@ def main():
     
     screen.onkey(lambda: solve_maze(t, tile_drawer), 'r')
     screen.onkey(lambda: follow_path(t), 'g')
-    enable_key_controls()
     run_called_maze()
+    enable_key_controls()
     screen.listen()
     
     root.mainloop()
