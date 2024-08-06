@@ -1,4 +1,0 @@
-Manual Mode: Use arrow keys to navigate (press ‘f’ to calculate shortest path)
-Automatic Pilot: Press ‘g’ to follow pre-calculated path.
-Automatic Pilot: Following pre-calculated path. Press ‘p’ to toggle pause/resume.
-Automatic Pilot: Destination (1,10) reached in 14 steps. Press ‘c’ to continue. 

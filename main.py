@@ -99,8 +99,10 @@ def toggle_pause(event=None):
     global paused
     paused = not paused
     if paused:
+        update_status("pause", "Autopilot Paused")
         print("Paused")
     else:
+        update_status("pause", "Autopilot active")
         print("Resumed")
 
 def quit_application():
@@ -163,9 +165,13 @@ def update_label(new_content):
     label_turtle.clear()  # Clear the previous text
     label_turtle.write(f"DRONE STATUS= {new_content}", align="center", font=("Helvetica", 12))
     
-def update_status(new_status):
-    status_label.config(text=f"Status: {new_status}")
-    status_label.update()
+def update_status(which, new_status):
+    if which == "pause":
+        status_pause_label.config(text=f"Status: {new_status}")
+        status_pause_label.update()
+    else:  
+        status_path_label.config(text=f"Status: {new_status}")
+        status_path_label.update()
         
 # Movement functions
 def move(direction):
@@ -244,12 +250,14 @@ def draw_maze(maze, t, tile_drawer):
                 raise ValueError(f"Invalid character in maze: '{char}' at position ({x}, {y})")
     
     if show_path:
+        update_status('path',"Showing path")
         for step in solved_path_coordinates:
             x, y = step
             screen_x = start_x + x * TILE_SIZE
             screen_y = start_y - y * TILE_SIZE
             tile_drawer.draw_circle(screen_x + TILE_SIZE / 2, screen_y - TILE_SIZE / 2, 'yellow', TILE_SIZE / 3)
-    
+    else:
+        update_status('path',"Path hidden")
     screen.tracer(1, 0)  # Enable automatic screen updates            
     screen.update()  # Update the screen once all the tiles are drawn
     return start_position
@@ -439,7 +447,7 @@ def main():
     global steps
     global content
     global label_turtle
-    global statuses, status_label
+    global statuses, status_pause_label, status_path_label
     
     root = tk.Tk()
     root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
@@ -450,7 +458,7 @@ def main():
     screen = turtle.TurtleScreen(canvas)
     screen.bgcolor("white")
     content = " "
-    statuses = "testing"
+    statuses = "Autopilot active"
     t = turtle.RawTurtle(screen)
     t.speed(1)
     t.fillcolor('red')  # Set turtle fill color
@@ -504,8 +512,11 @@ def main():
     status_frame.grid_rowconfigure(0, weight=1)
     status_frame.grid_columnconfigure(0, weight=1)
     
-    status_label = tk.Label(status_frame, text=f"Status: {statuses}", font='Helvetica 12 ')
-    status_label.grid(padx=2, pady=2, row=0, column=0, sticky='nsew')
+    status_pause_label = tk.Label(status_frame, text=f"AutoPilot Status: {statuses}", font='Helvetica 12 ')
+    status_pause_label.grid(padx=2, pady=2, row=0, column=0, sticky='nsew')
+    
+    status_path_label = tk.Label(status_frame, text=f"Path Status: {statuses}", font='Helvetica 12 ')
+    status_path_label.grid(padx=2, pady=2, row=1, column=0, sticky='nsew')
     
     screen.onkey(lambda: solve_maze(t, tile_drawer), 'f')
     screen.onkey(lambda: follow_path(t), 'g')

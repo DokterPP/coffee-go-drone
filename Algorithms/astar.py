@@ -3,9 +3,9 @@ import heapq
 class AStar_MazeSolver:
     def __init__(self, pos_x, pos_y, maze):
         self.maze = maze
-        self.start_x = pos_x
-        self.start_y = pos_y
-        self.start = (self.start_x, self.start_y)
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.start = (self.pos_x, self.pos_y)
         self.goal = self.find_goal_position()
         self.dx = [0, 1, 0, -1]
         self.dy = [-1, 0, 1, 0]
@@ -28,6 +28,7 @@ class AStar_MazeSolver:
 
     def solve_maze_astar(self):
         """Solve the maze using A* Search Algorithm."""
+        
         heapq.heappush(self.open_set, (0 + self.heuristic(self.start, self.goal), 0, self.start))
 
         while self.open_set:
@@ -54,6 +55,16 @@ class AStar_MazeSolver:
 
     def reconstruct_path(self):
         """Reconstruct the path from start to goal."""
+        start_x, start_y = None, None
+        for my, row in enumerate(self.maze):
+            for mx, cell in enumerate(row):
+                if cell == 's':
+                    start_x, start_y = mx, my
+                    break
+            if start_x is not None:
+                break
+        
+        
         if self.goal in self.came_from:
             current = self.goal
             path_stack = []
@@ -71,7 +82,7 @@ class AStar_MazeSolver:
             # Mark the start and goal
             sx, sy = self.start
             ex, ey = self.goal
-            self.maze[sy][sx] = 's'
+            self.maze[start_y][start_x] = 's'
             self.maze[ey][ex] = 'e'
 
     def print_maze(self):

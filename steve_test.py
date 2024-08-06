@@ -1,8 +1,5 @@
 import turtle
-<<<<<<< HEAD
-=======
 
->>>>>>> 36ac0e6e3383f84369acf342beac87725ef092e4
 
 # Define the maze
 maze = [
