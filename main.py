@@ -11,7 +11,7 @@ TILE_SIZE = 20
 MAZE_FILE = 'maze.txt'
 DEFAULT_MAZE = 'default.txt'
 FILE_IN_PLAY = None
-
+steps = 0
 
 # Global variables to store the initial start position and the solved path
 initial_start_position = None
@@ -88,7 +88,8 @@ def draw_maze(maze, t, tile_drawer):
 
 def generate_new_maze(t, tile_drawer):
     global initial_start_position, solved_path_coordinates
-    
+    steps = 0
+    root.title(f"COFFEE~GO~DRONE: Distance travelled : {steps}")
     generate_button.config(state=tk.DISABLED)  # Disable the button
     solve_button.config(state=tk.DISABLED)  # Disable the button
     disable_key_controls()  # Disable key controls
@@ -161,8 +162,10 @@ def string_to_maze(maze_str):
     return [list(row) for row in maze_str.split('\n') if row]
 
 def follow_path(t):
+    
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
-    global solved_path_coordinates
+    global solved_path_coordinates, steps
+    steps = 0
     generate_button.config(state=tk.DISABLED)  # Disable the button
     solve_button.config(state=tk.DISABLED)  # Disable the button
     disable_key_controls()  
@@ -180,6 +183,8 @@ def follow_path(t):
         current_position = solved_path_coordinates[i - 1]
         next_position = solved_path_coordinates[i]
         print(f"Moving from {current_position} to {next_position}")
+        steps += 1
+        root.title(f"COFFEE~GO~DRONE: Distance travelled : {steps}")
         t.speed(1)
         # Calculate the direction to move
         if next_position[0] > current_position[0]:
@@ -227,9 +232,12 @@ def main():
     global screen
     global t
     global tile_drawer
+    global root
+    global steps
     
+
     root = tk.Tk()
-    root.title("Maze Generator with Turtle")
+    root.title(f"COFFEE~GO~DRONE: Distance travelled : {steps}")
 
     canvas = tk.Canvas(root, width=1000, height=700)
     canvas.grid(padx=2, pady=2, row=0, column=0, rowspan=10, columnspan=10) # , sticky='nsew')
