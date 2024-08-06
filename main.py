@@ -105,6 +105,8 @@ def wait_for_continue(event=None):
     global continue_flag
     disable_key_controls()
     disable_buttons()
+    content = "Manual Mode: Use arrow keys to navigate (press ‘f’ to calculate shortest path)"
+    update_label(content)
     gx,gy,x,y = find_position()
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
     solved_path_coordinates.clear()
@@ -139,6 +141,8 @@ def reset_position(event=None):
     global initial_start_position, steps
     disable_key_controls()
     disable_buttons()
+    content = "Manual Mode: Use arrow keys to navigate (press ‘f’ to calculate shortest path)"
+    update_label(content)
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
     solved_path_coordinates.clear()
     draw_maze(maze_str, t, tile_drawer)
@@ -149,6 +153,11 @@ def reset_position(event=None):
     enable_key_controls()
     enable_buttons()
     
+    
+def update_label(new_content):
+    label_turtle.clear()  # Clear the previous text
+    label_turtle.write(f"DRONE STATUS= {new_content}", align="center", font=("Helvetica", 12))
+        
 # Movement functions
 def move(direction):
     
@@ -298,6 +307,8 @@ def solve_maze(t, tile_drawer):
     solved_path_coordinates = solved_path
     initial_start_position = draw_maze(solved_maze_str, t, tile_drawer)  # Save the new starting position
     Move_Turtle().move_turtle_to_start(t,(x,y))
+    content = "Automatic Pilot: Press ‘g’ to follow pre-calculated path."
+    update_label(content)
     screen.update()
     
     generate_button.config(state=tk.NORMAL)  # Re-enable the button
@@ -310,9 +321,11 @@ def follow_path(t):
     if not solved_path_coordinates:
         print("No path to follow.")
         return
+
     Move_Turtle().move_turtle_to_start(t, (x, y))
     screen.tracer(1, 10)  # Disable automatic screen updates
-
+    content = "Automatic Pilot: Following pre-calculated path. Press ‘p’ to toggle pause/resume."
+    update_label(content)
     steps = 0
     generate_button.config(state=tk.DISABLED)  # Disable the button
     solve_button.config(state=tk.DISABLED)  # Disable the button
@@ -366,6 +379,8 @@ def follow_path(t):
         # Wait for the user to press 'c' before enabling key controls
     continue_flag = False
     print("Waiting for 'c' to continue...")
+    content = f"Automatic Pilot: Destination {next_position} reached in {steps} steps. Press ‘c’ to continue."
+    update_label(content)
     while not continue_flag:
         screen.update()
         screen.ontimer(lambda: None, 100)  # Wait for 100ms before checking again
@@ -390,7 +405,8 @@ def run_called_maze():
         print("Maze failed validation checks. Please provide a valid maze.")
         generate_new_maze(t, tile_drawer)
         return
-
+    content = "Manual Mode: Use arrow keys to navigate (press ‘f’ to calculate shortest path)"
+    update_label(content)
     initial_start_position = draw_maze(maze_str, t, tile_drawer)  # Save the new starting position
     solved_path_coordinates = []  # Clear any previous path
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
@@ -408,8 +424,8 @@ def main():
     global tile_drawer
     global root
     global steps
-    
-
+    global content
+    global label_turtle
     root = tk.Tk()
     root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
     
@@ -418,20 +434,24 @@ def main():
 
     screen = turtle.TurtleScreen(canvas)
     screen.bgcolor("white")
-    content = "testing"
+    content = " "
     t = turtle.RawTurtle(screen)
     t.speed(1)
     t.fillcolor('red')  # Set turtle fill color
     t.showturtle()  # Ensure the turtle is visible
     t.pencolor('black')  # Set the pen color explicitly
     
+    
+    title_turtle = turtle.RawTurtle(screen)
+    title_turtle.hideturtle()
+    title_turtle.penup()
+    title_turtle.goto(0, 340)  # Position the label above the maze
+    title_turtle.write("COFFEE~GO~DRONE: Done by Surya & Steve DAAA/2A/02", align="center", font=("Helvetica", 16))
     # Create a turtle for the label
     label_turtle = turtle.RawTurtle(screen)
     label_turtle.hideturtle()
     label_turtle.penup()
-    
-    label_turtle.goto(0, 340)  # Position the label above the maze
-    label_turtle.write("COFFEE~GO~DRONE: Done by Surya & Steve DAAA/2A/02", align="center", font=("Helvetica", 16))
+
     label_turtle.goto(0, 310)  # Position the label above the maze
     label_turtle.write(f"DRONE STATUS= {content}", align="center", font=("Helvetica", 12))
 
