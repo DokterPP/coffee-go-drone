@@ -121,7 +121,7 @@ def wait_for_continue(event=None):
     enable_key_controls()
     enable_buttons()
     continue_flag = True
-    print("Continue pressed")
+
     
 def toggle_path_visibility(event=None):
     global show_path
@@ -276,7 +276,6 @@ def find_position():
     x, y = t.xcor(), t.ycor()
     grid_x = int((x - start_x) // TILE_SIZE)  # Convert x to grid index
     grid_y = int((start_y - y) // TILE_SIZE)  # Convert y to grid index
-    print(f"Grid indices: ({grid_x}, {grid_y})")
     return grid_x, grid_y, x, y
 
 def solve_maze(t, tile_drawer):
@@ -287,8 +286,6 @@ def solve_maze(t, tile_drawer):
     disable_key_controls()  # Disable key controls
     # Move the turtle back to the initial starting position before solving the maze
     gx,gy,x,y = find_position()
-    print(f"Start position: ({gx}, {gy})")
-    print(f"Current position: ({x}, {y})")
     t.setheading(0)  # Set the turtle to face up
     maze_str = read_file(FILE_IN_PLAY)
     maze = string_to_maze(maze_str)
@@ -301,7 +298,6 @@ def solve_maze(t, tile_drawer):
         solved_maze, solved_path  = breadth_first.solve_maze_bfs(gx,gy,maze)
     elif selected_algorithm.get() == "a_star":
         solved_maze, solved_path  = astar.solve_maze_astar(gx,gy,maze)
-        print("Solved path:", solved_path)
     # Convert the solved maze list back to a string
     solved_maze_str = '\n'.join([''.join(row) for row in solved_maze])
     solved_path_coordinates = solved_path
@@ -400,7 +396,6 @@ def run_called_maze():
         
     maze_str = read_file_from_argument()
     maze = string_to_maze(maze_str)
-    print("Maze:", maze_str)
     if not Validator().run_all_checks(maze):
         print("Maze failed validation checks. Please provide a valid maze.")
         generate_new_maze(t, tile_drawer)
@@ -426,6 +421,8 @@ def main():
     global steps
     global content
     global label_turtle
+    global statuses
+    
     root = tk.Tk()
     root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
     
@@ -435,6 +432,7 @@ def main():
     screen = turtle.TurtleScreen(canvas)
     screen.bgcolor("white")
     content = " "
+    statuses = "testing"
     t = turtle.RawTurtle(screen)
     t.speed(1)
     t.fillcolor('red')  # Set turtle fill color
@@ -465,11 +463,13 @@ def main():
     algorithm_frame = tk.Frame(root)
     algorithm_frame.grid(padx=2, pady=2, row=2, column=11, sticky='nsew')
     #add text to the frame make the font bold
-
+    
     algorithm_label = tk.Label(algorithm_frame, text="Select Algorithm", font='Helvetica 10 bold')
     algorithm_label.grid(padx=2, pady=2, row=0, column=0)
-    selected_algorithm = tk.StringVar(value="left_hand")
+    
 
+    
+    selected_algorithm = tk.StringVar(value="left_hand")
     left_hand_radio = tk.Radiobutton(algorithm_frame, text="Left Hand", variable=selected_algorithm, value="left_hand")
     depth_first_radio = tk.Radiobutton(algorithm_frame, text="Depth First", variable=selected_algorithm, value="depth_first")
     breadth_first_radio = tk.Radiobutton(algorithm_frame, text="Breadth First", variable=selected_algorithm, value="breadth_first")
@@ -479,6 +479,15 @@ def main():
     depth_first_radio.grid(padx=2, pady=2, row=1, column=1)
     breadth_first_radio.grid(padx=2, pady=2, row=1, column=2)
     astar_radio.grid(padx=2, pady=2, row=1, column=3)
+    
+    status_frame = tk.Frame(root)
+    status_frame.grid(padx=2, pady=2, row=3, column=11, sticky='nsew')
+    
+    status_frame.grid_rowconfigure(0, weight=1)
+    status_frame.grid_columnconfigure(0, weight=1)
+    
+    status_label = tk.Label(status_frame, text=f"{statuses}", font='Helvetica 12 ')
+    status_label.grid(padx=2, pady=2, row=0, column=0, sticky='nsew')
     
     screen.onkey(lambda: solve_maze(t, tile_drawer), 'f')
     screen.onkey(lambda: follow_path(t), 'g')
