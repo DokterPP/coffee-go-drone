@@ -5,6 +5,7 @@ from maze.tile import Tile
 from generate_maze import Maze_Generator
 from Algorithms import left_hand, depth_first, breadth_first, astar
 from movement import Move_Turtle
+from maze_validator import Validator
 
 # Define constants
 TILE_SIZE = 20
@@ -89,7 +90,7 @@ def draw_maze(maze, t, tile_drawer):
 def generate_new_maze(t, tile_drawer):
     global initial_start_position, solved_path_coordinates
     steps = 0
-    root.title(f"COFFEE~GO~DRONE: Distance travelled : {steps}")
+    root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
     generate_button.config(state=tk.DISABLED)  # Disable the button
     solve_button.config(state=tk.DISABLED)  # Disable the button
     disable_key_controls()  # Disable key controls
@@ -147,6 +148,7 @@ def solve_maze(t, tile_drawer):
         solved_maze, solved_path  = breadth_first.solve_maze_bfs(maze)
     elif selected_algorithm.get() == "a_star":
         solved_maze, solved_path  = astar.solve_maze_astar(maze)
+        print("Solved path:", solved_path)
     # Convert the solved maze list back to a string
     solved_maze_str = '\n'.join([''.join(row) for row in solved_maze])
     solved_path_coordinates = solved_path
@@ -184,7 +186,7 @@ def follow_path(t):
         next_position = solved_path_coordinates[i]
         print(f"Moving from {current_position} to {next_position}")
         steps += 1
-        root.title(f"COFFEE~GO~DRONE: Distance travelled : {steps}")
+        root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
         t.speed(1)
         # Calculate the direction to move
         if next_position[0] > current_position[0]:
@@ -217,6 +219,12 @@ def run_called_maze():
         Move_Turtle().move_turtle_to_start(t, initial_start_position)
         
     maze_str = read_file_from_argument()
+    maze = string_to_maze(maze_str)
+    if not Validator().run_all_checks(maze):
+        print("Maze failed validation checks. Please provide a valid maze.")
+        generate_new_maze(t, tile_drawer)
+        return
+
     initial_start_position = draw_maze(maze_str, t, tile_drawer)  # Save the new starting position
     solved_path_coordinates = []  # Clear any previous path
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
@@ -237,7 +245,7 @@ def main():
     
 
     root = tk.Tk()
-    root.title(f"COFFEE~GO~DRONE: Distance travelled : {steps}")
+    root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
 
     canvas = tk.Canvas(root, width=1000, height=700)
     canvas.grid(padx=2, pady=2, row=0, column=0, rowspan=10, columnspan=10) # , sticky='nsew')
