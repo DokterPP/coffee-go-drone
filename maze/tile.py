@@ -1,4 +1,3 @@
-import turtle
 
 class Tile:
     def __init__(self, turtle_instance):
