@@ -1,7 +1,8 @@
 import turtle
+import os
 import sys
 import tkinter as tk
-from tkinter import Toplevel, Entry, Button
+from tkinter import Toplevel, Entry, Button, messagebox
 from maze.tile import Tile
 from maze.generate_maze import Maze_Generator
 from maze.movement import Move_Turtle
@@ -252,7 +253,7 @@ def draw_maze(maze, t, tile_drawer):
             if char == 'X':
                 tile_drawer.draw_tile(screen_x, screen_y, 'grey', TILE_SIZE)
             elif char == 's':
-                tile_drawer.draw_tile(screen_x, screen_y, 'lime', TILE_SIZE, 's', 'lime green')
+                tile_drawer.draw_tile(screen_x, screen_y, 'lime', TILE_SIZE, 's', 'green')
                 start_position = (screen_x + TILE_SIZE / 2, screen_y - TILE_SIZE / 2)
             elif char == 'e':
                 tile_drawer.draw_tile(screen_x, screen_y, 'cyan', TILE_SIZE, 'e', 'royal blue')
@@ -477,12 +478,60 @@ def open_file_input_window():
     
     def submit_file():
         file_path = file_entry.get()
-        print(f"File path entered: {file_path}")
-        # Add your file handling logic here
-        #make sure its a txt file
-        #check if the file exists
-        #check if the file is a valid maze
-        file_input_window.destroy()
+        # print(f"File path entered: {file_path}")
+
+        # Check if the file has a .txt extension
+        if not file_path.endswith('.txt'):
+            messagebox.showerror("Invalid File", "Please select a file with a .txt extension.")
+            return
+
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            messagebox.showerror("File Not Found", "The specified file does not exist.")
+            return        #check if the file is a valid maze
+        
+
+        try:
+            with open(file_path, 'r') as file:
+                maze = [list(line.strip()) for line in file.readlines()]
+
+                ## For debugging purposes
+                print(maze)
+
+                def convert_maze_to_format(maze):
+                    """
+                    Convert the maze to a format compatible with the MazeValidator.
+                    Convert 's' and '.' to 1, '#' to 0.
+                    """
+                    converted_maze = []
+                    for row in maze:
+                        converted_row = []
+                        for cell in row:
+                            if cell == '#':
+                                converted_row.append(0)  # Wall
+                            elif cell in {'.', 's', 'e'}:
+                                converted_row.append(1)  # Path
+                            else:
+                                converted_row.append(cell)  # Keep other characters unchanged
+                        converted_maze.append(converted_row)
+                    return converted_maze
+            
+            converted_maze = convert_maze_to_format(maze)
+            validator = Maze_Generator()
+            if not validator.is_solvable(converted_maze):
+                messagebox.showinfo("Maze Invalid", "The maze is not solvable or contains invalid character; Please check your file")
+                return
+                
+            else:
+                file_input_window.destroy()
+                maze_reformatted = '\n'.join(''.join(row) for row in maze)
+                draw_maze(maze_reformatted, t, tile_drawer)
+                Move_Turtle().move_turtle_to_start(t,initial_start_position)
+                screen.update()
+                
+
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {str(e)}")
         
     # Create a submit button
     submit_button = Button(file_input_window, text="Submit", command=submit_file)
