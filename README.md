@@ -8,19 +8,6 @@ X Building Tile (drone can’t go here)
 s The start location of the drone 
 e The end location to deliver the coffee 
 
-get up to 50 X 50 dimensions for city map
-
-drone is red triangle
-- Maybe we can try other algorithm. I suggest A star 
-- LEcturer say control panel UI built on tkinter can be regarded as extra feature
-
-- press f for shortest path instead of pressing a tkinter button
-- g for autopiloting drone. (drone moves along shortest pre defined path)
-- During auto-piloting, press p to pause and and press p again to resume movement
-- Once drone is done flying output a message. In this format: Automatic Pilot: Destination(1,10) reached in ... steps. Press 'c' to continue.
-- Press 'c' drone path will be cleared and drone can be controlled manually.
-
-
 ## Flow
 
 - Manual Mode: Use arrow keys to navigate (press ‘f’ to calculate shortest path)
@@ -46,9 +33,3 @@ drone is red triangle
 | `up arrow`   | move up       | Will move the drone to the tile at top (if free) and only if drone is in manual operation.    |
 | `down arrow` | move down     | Will move the drone to the tile at bottom (if free) and only if drone is in manual operation. |
 | `q`          | quit          | Will quit the application                                                                     |
-
-
-Problems to solve by today
-1. Wrong coordinated recorded for maze starting postion
-2. Movement File currently going through walls -> Fix
-3. Manual Movement and start solving from that postion when solve maze is called
