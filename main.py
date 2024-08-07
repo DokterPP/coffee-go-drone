@@ -505,6 +505,7 @@ def open_file_input_window():
         passed , error = Validator().run_all_checks(maze)
         
         if not passed:
+            file_input_window.destroy()
             print("Maze failed validation checks. Please provide a valid maze.")
             error = error + "\n Press Enter to continue to generate random maze..."
             log_text.config(text=error)
