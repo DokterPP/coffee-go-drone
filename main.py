@@ -81,6 +81,7 @@ def disable_key_controls():
 def disable_buttons():
     generate_button.config(state=tk.DISABLED)
     solve_button.config(state=tk.DISABLED)
+    file_input_button.config(state=tk.DISABLED)
     
 def enable_key_controls():
     global maze_str
@@ -96,6 +97,7 @@ def enable_key_controls():
 def enable_buttons():
     generate_button.config(state=tk.NORMAL)
     solve_button.config(state=tk.NORMAL)
+    file_input_button.config(state=tk.NORMAL)  
     
 def toggle_pause(event=None):
     global paused
@@ -111,7 +113,7 @@ def quit_application():
     root.quit()
 
 def wait_for_continue(event=None):
-    global continue_flag
+    global continue_flag, steps
     disable_key_controls()
     disable_buttons()
     content = "Manual Mode: Use arrow keys to navigate (press ‘f’ to calculate shortest path)"
@@ -121,9 +123,6 @@ def wait_for_continue(event=None):
     solved_path_coordinates.clear()
     draw_maze(maze_str, t, tile_drawer)
     Move_Turtle().move_turtle_to_start(t, (x, y))
-    enable_key_controls()
-    enable_buttons()
-
     steps = 0
     root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
     screen.update()
@@ -196,7 +195,7 @@ def move(direction):
     global maze_str, screen
     global new_x, new_y
     global steps
-    
+    disable_buttons()
     disable_key_controls()
     global point 
     
@@ -231,7 +230,7 @@ def move(direction):
 
         
     enable_key_controls()
-    
+    enable_buttons()
 
 def draw_maze(maze, t, tile_drawer):
     global start_x, start_y, maze_height, maze_width, screen_x, screen_y, solved_path_coordinates
@@ -283,8 +282,7 @@ def generate_new_maze(t, tile_drawer):
     global initial_start_position, solved_path_coordinates, maze_rand, steps, maze_str
     steps = 0
     root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
-    generate_button.config(state=tk.DISABLED)  # Disable the button
-    solve_button.config(state=tk.DISABLED)  # Disable the button
+    disable_buttons() # Disable the button
     disable_key_controls()  # Disable key controls
     content = "Manual Mode: Use arrow keys to navigate (press ‘f’ to calculate shortest path)"
     update_label(content)
@@ -302,8 +300,7 @@ def generate_new_maze(t, tile_drawer):
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
     screen.update()
     
-    generate_button.config(state=tk.NORMAL)  # Re-enable the button
-    solve_button.config(state=tk.NORMAL)  # Re-enable the button
+    enable_buttons()  # Re-enable the button
     enable_key_controls()  # Re-enable key controls
 
 
@@ -318,8 +315,7 @@ def find_position():
 def solve_maze(t, tile_drawer):
     global initial_start_position, solved_path_coordinates
     global gx, gy, x, y
-    solve_button.config(state=tk.DISABLED)  # Disable the button
-    generate_button.config(state=tk.DISABLED)  # Disable the button
+    disable_buttons()  # Disable the button
     disable_key_controls()  # Disable key controls
     # Move the turtle back to the initial starting position before solving the maze
     gx,gy,x,y = find_position()
@@ -356,8 +352,7 @@ def solve_maze(t, tile_drawer):
     Move_Turtle().move_turtle_to_start(t,(x,y))
     screen.update()
     
-    generate_button.config(state=tk.NORMAL)  # Re-enable the button
-    solve_button.config(state=tk.NORMAL)  # Re-enable the button
+    enable_buttons()# Re-enable the button
     enable_key_controls()  # Re-enable key controls
     
 def follow_path(t):
@@ -372,13 +367,11 @@ def follow_path(t):
     content = "Automatic Pilot: Following pre-calculated path. Press ‘p’ to toggle pause/resume."
     update_label(content)
     steps = 0
-    generate_button.config(state=tk.DISABLED)  # Disable the button
-    solve_button.config(state=tk.DISABLED)  # Disable the button
+    disable_buttons()
     disable_key_controls()
     if not solved_path_coordinates:
         print("No path to follow.")
-        generate_button.config(state=tk.NORMAL)  # Re-enable the button
-        solve_button.config(state=tk.NORMAL)  # Re-enable the button
+        enable_buttons()
         enable_key_controls()
         return
     # Follow the path step by step in sequence
@@ -416,8 +409,6 @@ def follow_path(t):
 
         screen.update()
     t.pendown()
-    generate_button.config(state=tk.NORMAL)  # Re-enable the button
-    solve_button.config(state=tk.NORMAL)  # Re-enable the button
     screen.tracer(1, 0)  # Enable automatic screen updates
         # Wait for the user to press 'c' before enabling key controls
     continue_flag = False
@@ -428,21 +419,23 @@ def follow_path(t):
     while not continue_flag:
         screen.update()
         screen.ontimer(lambda: None, 100)  # Wait for 100ms before checking again
+        
+    
 
-    enable_key_controls()
     
-    
-def run_called_maze():
+def run_called_maze(option=None):
     global initial_start_position, solved_path_coordinates, maze_str
     
-    generate_button.config(state=tk.DISABLED)  # Disable the button
+    disable_buttons()  # Disable the button
     disable_key_controls()  # Disable key controls
     
     # Move the turtle back to the initial starting position before generating the maze
     if initial_start_position:
         Move_Turtle().move_turtle_to_start(t, initial_start_position)
-        
-    maze_str = read_file_from_argument()
+    if option == None:    
+        maze_str = read_file_from_argument()
+    else:
+        maze_str = read_file(option)
     maze = string_to_maze(maze_str)
     passed , error = Validator().run_all_checks(maze)
     if not passed:
@@ -461,14 +454,17 @@ def run_called_maze():
     Move_Turtle().move_turtle_to_start(t, initial_start_position)
     screen.update()
     
-    generate_button.config(state=tk.NORMAL)  # Re-enable the button
+    enable_buttons() # Re-enable the button
     enable_key_controls()  # Re-enable key controls
+
 
 def open_file_input_window():
     # Create a new window
+    global FILE_IN_PLAY, initial_start_position
     file_input_window = Toplevel(root)
     file_input_window.title("Input File")
-
+    disable_buttons() # Disable the button
+    disable_key_controls() 
     # Create a label and text entry for file input
     file_label = tk.Label(file_input_window, text="Enter file path:", font='Helvetica 10')
     file_label.grid(padx=10, pady=10, row=0, column=0)
@@ -476,66 +472,65 @@ def open_file_input_window():
     file_entry = Entry(file_input_window, width=50)
     file_entry.grid(padx=10, pady=10, row=0, column=1)
     
-    def submit_file():
+    def submit_file(initial_start_position):
+
+        if initial_start_position:
+            Move_Turtle().move_turtle_to_start(t, initial_start_position)
         file_path = file_entry.get()
-        # print(f"File path entered: {file_path}")
 
         # Check if the file has a .txt extension
         if not file_path.endswith('.txt'):
             messagebox.showerror("Invalid File", "Please select a file with a .txt extension.")
+            enable_buttons()
+            enable_key_controls()
+            file_input_window.lift()
             return
 
         # Check if the file exists
         if not os.path.exists(file_path):
             messagebox.showerror("File Not Found", "The specified file does not exist.")
-            return        #check if the file is a valid maze
+            enable_buttons()
+            enable_key_controls()
+            file_input_window.lift()
+            return     
         
-
+        print(f"Reading file: {file_path}")
         try:
             with open(file_path, 'r') as file:
-                maze = [list(line.strip()) for line in file.readlines()]
-
-                ## For debugging purposes
-                print(maze)
-
-                def convert_maze_to_format(maze):
-                    """
-                    Convert the maze to a format compatible with the MazeValidator.
-                    Convert 's' and '.' to 1, '#' to 0.
-                    """
-                    converted_maze = []
-                    for row in maze:
-                        converted_row = []
-                        for cell in row:
-                            if cell == '#':
-                                converted_row.append(0)  # Wall
-                            elif cell in {'.', 's', 'e'}:
-                                converted_row.append(1)  # Path
-                            else:
-                                converted_row.append(cell)  # Keep other characters unchanged
-                        converted_maze.append(converted_row)
-                    return converted_maze
-            
-            converted_maze = convert_maze_to_format(maze)
-            validator = Maze_Generator()
-            if not validator.is_solvable(converted_maze):
-                messagebox.showinfo("Maze Invalid", "The maze is not solvable or contains invalid character; Please check your file")
-                return
-                
-            else:
-                file_input_window.destroy()
-                maze_reformatted = '\n'.join(''.join(row) for row in maze)
-                draw_maze(maze_reformatted, t, tile_drawer)
-                Move_Turtle().move_turtle_to_start(t,initial_start_position)
-                screen.update()
-                
-
+                content = file.read()
+                FILE_IN_PLAY = file_path
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {str(e)}")
+            
+        maze = string_to_maze(content)
+        passed , error = Validator().run_all_checks(maze)
         
+        if not passed:
+            print("Maze failed validation checks. Please provide a valid maze.")
+            error = error + "\n Press Enter to continue to generate random maze..."
+            log_text.config(text=error)
+            log_text.update()
+            print("Press Enter to continue...")
+            wait_for_enter()
+            generate_new_maze(t, tile_drawer)
+            file_input_window.destroy()
+            
+            return
+        else:
+            run_called_maze(file_path)
+            file_input_window.destroy()
+        
+    def cancel_file_input():
+        enable_buttons()
+        enable_key_controls()
+        file_input_window.destroy()
+
+    #if the window is closed, enable the buttons and key controls
+    file_input_window.protocol("WM_DELETE_WINDOW", lambda: cancel_file_input())
+    
     # Create a submit button
-    submit_button = Button(file_input_window, text="Submit", command=submit_file)
-    cancel_button = Button(file_input_window, text="Cancel", command=file_input_window.destroy)
+    submit_button = Button(file_input_window, text="Submit", command= lambda: submit_file(initial_start_position))
+    cancel_button = Button(file_input_window, text="Cancel", command= lambda: cancel_file_input())
     submit_button.grid(padx=75, pady=10, row=1, column=1, sticky='nsew')
     cancel_button.grid(padx=75, pady=10, row=1, column=0, sticky='nsew')
 
@@ -552,7 +547,7 @@ def main():
     global steps
     global content
     global label_turtle
-    global statuses, status_pause_label, status_path_label, error, log_text
+    global statuses, status_pause_label, status_path_label, error, log_text, file_input_button
     
     root = tk.Tk()
     root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")

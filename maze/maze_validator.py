@@ -11,12 +11,12 @@ class Validator:
     def __init__(self):
         pass
     
-    def check_file_empty(self, maze):
+    def __check_file_empty(self, maze):
         if not maze:
             return False
         return True
     
-    def check_start_end_points(self, maze):
+    def __check_start_end_points(self, maze):
         start = False
         end = False
         for row in maze:
@@ -27,7 +27,7 @@ class Validator:
                     end = True
         return start and end
     
-    def check_multiple_start_end_points(self, maze):
+    def __check_multiple_start_end_points(self, maze):
         start_count = 0
         end_count = 0
         for row in maze:
@@ -40,14 +40,14 @@ class Validator:
             return False
         return True
         
-    def check_illegal_characters(self, maze):
+    def __check_illegal_characters(self, maze):
         for row in maze:
             for cell in row:
                 if cell not in ['s', 'e', 'X', '.']:
                     return False
         return True
     
-    def check_maze_solvable(self, maze):
+    def __check_maze_solvable(self, maze):
         start_x, start_y = None, None
         for my, row in enumerate(maze):
             for mx, cell in enumerate(row):
@@ -64,7 +64,7 @@ class Validator:
         else:
             return False
         
-    def check_maze_edges(self, maze):
+    def __check_maze_edges(self, maze):
         # Ensure the maze is a rectangular grid with uniform rows and columns
         rows = len(maze)
         cols = len(maze[0])
@@ -88,32 +88,32 @@ class Validator:
 
     def run_all_checks(self,maze):
 
-        if not self.check_file_empty(maze):
+        if not self.__check_file_empty(maze):
             error = "Maze is empty"
             
             return False, error
         
-        if not self.check_start_end_points(maze):
+        if not self.__check_start_end_points(maze):
             error = "Maze does not have either start or/and end points"
             
             return False, error
         
-        if not self.check_multiple_start_end_points(maze):
+        if not self.__check_multiple_start_end_points(maze):
             error = "Maze has multiple start or/and end points"
             
             return False, error
         
-        if not self.check_illegal_characters(maze):
+        if not self.__check_illegal_characters(maze):
             error = "Maze contains illegal characters"
             
             return False, error
         
-        if not self.check_maze_edges(maze):
+        if not self.__check_maze_edges(maze):
             error = "Maze does not have walls on the edges"
             
             return False, error
         
-        if not self.check_maze_solvable(maze):
+        if not self.__check_maze_solvable(maze):
             error = "Maze is not solvable"
             
             return False, error
