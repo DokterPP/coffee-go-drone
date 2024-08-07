@@ -3,9 +3,9 @@ import sys
 import tkinter as tk
 from tkinter import Toplevel, Entry, Button
 from maze.tile import Tile
-from generate_maze import Maze_Generator
-from movement import Move_Turtle
-from maze_validator import Validator
+from maze.generate_maze import Maze_Generator
+from maze.movement import Move_Turtle
+from maze.maze_validator import Validator
 
 from Algorithms.left_hand import LeftHand_MazeSolver
 from Algorithms.depth_first import DepthFirst_MazeSolver
