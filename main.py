@@ -82,6 +82,7 @@ def disable_buttons():
     generate_button.config(state=tk.DISABLED)
     solve_button.config(state=tk.DISABLED)
     file_input_button.config(state=tk.DISABLED)
+    show_path_label.config(state=tk.DISABLED)
     
 def enable_key_controls():
     global maze_str
@@ -98,16 +99,15 @@ def enable_buttons():
     generate_button.config(state=tk.NORMAL)
     solve_button.config(state=tk.NORMAL)
     file_input_button.config(state=tk.NORMAL)  
+    show_path_label.config(state=tk.NORMAL)
     
 def toggle_pause(event=None):
     global paused
     paused = not paused
     if paused:
         update_status("pause", "Autopilot Paused")
-        print("Paused")
     else:
         update_status("pause", "Autopilot active")
-        print("Resumed")
 
 def quit_application():
     root.quit()
@@ -494,7 +494,6 @@ def open_file_input_window():
             file_input_window.lift()
             return     
         
-        print(f"Reading file: {file_path}")
         try:
             with open(file_path, 'r') as file:
                 content = file.read()
@@ -547,7 +546,7 @@ def main():
     global steps
     global content
     global label_turtle
-    global statuses, status_pause_label, status_path_label, error, log_text, file_input_button
+    global statuses, status_pause_label, status_path_label, error, log_text, file_input_button, show_path_label
     
     root = tk.Tk()
     root.title(f"COFFEE~GO~DRONE: Distance travelled ({steps})")
@@ -581,8 +580,8 @@ def main():
     label_turtle.write(f"DRONE STATUS= {content}", align="center", font=("Helvetica", 12))
 
     tile_drawer = Tile(t)
-    generate_button = tk.Button(root, text="Generate New Maze", command=lambda: generate_new_maze(t, tile_drawer))
-    solve_button = tk.Button(root, text="Solve Maze", command=lambda: solve_maze(t, tile_drawer))
+    generate_button = tk.Button(root, text="Generate New Maze", command=lambda: generate_new_maze(t, tile_drawer), bg='#d3d3d3')
+    solve_button = tk.Button(root, text="Solve Maze", command=lambda: solve_maze(t, tile_drawer), bg='#d3d3d3')
     
     generate_button.grid(padx=75, pady=10, row=0, column=11, sticky='nsew')
     solve_button.grid(padx=75, pady=10, row=1, column=11, sticky='nsew')
@@ -593,7 +592,7 @@ def main():
     algorithm_frame.grid_columnconfigure(0, weight=1)
     #add text to the frame make the font bold
     
-    file_input_button = Button(root, text="Input File", command=open_file_input_window)
+    file_input_button = Button(root, text="Input File", command=open_file_input_window , bg='#d3d3d3')
     file_input_button.grid(padx=75, pady=10, row=2, column=11, sticky='nsew')
 
     
@@ -635,6 +634,17 @@ def main():
     log_text = tk.Label(log_frame, text=error, font='Helvetica 10 bold', fg='red')
     log_text.grid(row=0, column=0, sticky='nsew')
 
+    move_frame = tk.Frame(root)
+    move_frame.grid(padx=2, pady=2, row=6, column=11, sticky='nsew')
+    
+    move_frame.grid_rowconfigure(0, weight=1)
+    move_frame.grid_columnconfigure(0, weight=1)
+    
+    pause_label = tk.Button(move_frame, text="Toggle Pause", command= lambda: toggle_pause(), bg='#d3d3d3' )
+    pause_label.grid(padx=20, pady=2, row=0, column=0, sticky='nsew')
+    
+    show_path_label = tk.Button(move_frame, text="Toggle Path Visibility", command= lambda: toggle_path_visibility(), bg='#d3d3d3')
+    show_path_label.grid(padx=20, pady=2, row=0, column=1, sticky='nsew')
     
     screen.onkey(lambda: solve_maze(t, tile_drawer), 'f')
     screen.onkey(lambda: follow_path(t), 'g')
